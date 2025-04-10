@@ -1,16 +1,38 @@
 const db = require("../config/db");
 
-const createUser = async ({ name, email, password }) => {
+const createUser = async ({
+  pFirstName,
+  pLastName,
+  addhar,
+  dob,
+  mobileno,
+  gender,
+  pincode,
+  sub_dist,
+  dist,
+  state,
+}) => {
   const result = await db.query(
-    "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email",
-    [name, email, password]
+    "INSERT INTO patient (pname_firstname, pname_lastname, paddhar, pmobileno, dob, gender, pincode, sub_dist, dist, state) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING pid, pname_firstname, pname_lastname, paddhar, pmobileno, dob, gender, pincode, sub_dist, dist, state",
+    [
+      pFirstName,
+      pLastName,
+      addhar,
+      mobileno,
+      dob,
+      gender,
+      pincode,
+      sub_dist,
+      dist,
+      state,
+    ]
   );
   return result.rows[0];
 };
 
-const getUserByEmail = async (email) => {
-  const result = await db.query("SELECT * FROM users WHERE email = $1", [
-    email,
+const getUserByPaddhar = async (addhar) => {
+  const result = await db.query("SELECT * FROM patient WHERE paddhar = $1", [
+    addhar,
   ]);
   return result.rows[0];
 };
@@ -53,7 +75,7 @@ const getHospitalByEmail = async (email) => {
 
 module.exports = {
   createUser,
-  getUserByEmail,
+  getUserByPaddhar,
   createHospital,
   getHospitalByEmail,
 };

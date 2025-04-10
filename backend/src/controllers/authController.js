@@ -4,34 +4,69 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const {
   createUser,
-  getUserByEmail,
   createHospital,
   getHospitalByEmail,
+  getUserByPaddhar,
 } = require("../models/userModel");
 
 const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { pFirstName, pLastName, addhar, dob, mobileno, gender, pincode } =
+    req.body;
+
+  if (
+    !pFirstName ||
+    !pLastName ||
+    !addhar ||
+    !dob ||
+    !mobileno ||
+    !gender ||
+    !pincode
+  ) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  let sub_dist, dist, state;
 
   try {
-    const existing = await getUserByEmail(email);
+    const postOfficeURL = `${process.env.PINCODE_API}/${pincode}`;
+    const response = await axios.get(postOfficeURL);
+    const postOffices = response.data[0]?.PostOffice;
+
+    if (!postOffices || postOffices.length === 0) {
+      return res.status(404).json({ error: "Invalid or unsupported pincode" });
+    }
+
+    const locationInfo = postOffices[0];
+    sub_dist = locationInfo.Block;
+    dist = locationInfo.District;
+    state = locationInfo.State;
+  } catch (error) {
+    console.error("Pincode API Error:", error.message);
+    return res
+      .status(500)
+      .json({ error: "Failed to fetch location from pincode" });
+  }
+
+  try {
+    const existing = await getUserByPaddhar(addhar);
     if (existing) return res.status(400).json({ error: "User already exists" });
 
-    const hashed = await bcrypt.hash(password, 10);
-    const user = await createUser({ name, email, password: hashed });
-
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
+    const patient = await createUser({
+      pFirstName,
+      pLastName,
+      addhar,
+      dob,
+      mobileno,
+      gender,
+      pincode,
+      sub_dist,
+      dist,
+      state,
     });
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      sameSite: "lax",
-      maxAge: 24 * 60 * 60 * 1000,
-    });
-
-    res.status(201).json({ user, token });
+    res.status(201).json({ patient });
   } catch (err) {
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ error: "Server error", err: err.message });
   }
 };
 
