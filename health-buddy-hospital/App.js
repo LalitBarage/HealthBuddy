@@ -1,20 +1,80 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { Alert } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-export default function App() {
+import {HomeScreen} from './screens/HomeScreen';
+import { PatientScreen } from './screens/PatientScreen';
+import { EnquiryScreen } from './screens/EnquiryScreen';
+import { SchemeScreen } from './screens/SchemeScreen';
+
+const Tab = createBottomTabNavigator();
+
+const App = () => {
+  const handleLogout = () => {
+    Alert.alert('Logout', 'Are you sure you want to logout?', [
+      { text: 'Cancel' },
+      {
+        text: 'Logout',
+        onPress: () => {
+          navigate('Login'); 
+        },
+        style: 'destructive',
+      },
+    ]);
+  };
+
+  const withHeader = (title) => ({
+    headerTitle: title,
+    headerRight: () => (
+      <Icon.Button
+        name="logout"
+        size={22}
+        backgroundColor="transparent"
+        color="#0ba9bb"
+        onPress={handleLogout}
+      />
+    ),
+  });
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+    <NavigationContainer>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ color, size }) => {
+            let iconName;
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+            switch (route.name) {
+              case 'Home':
+                iconName = 'home-outline';
+                break;
+              case 'Patient':
+                iconName = 'account-outline';
+                break;
+              case 'Enquiry':
+                iconName = 'magnify';
+                break;
+              case 'Scheme':
+                iconName = 'file-document-outline';
+                break;
+              default:
+                iconName = 'circle';
+            }
+
+            return <Icon name={iconName} color={color} size={size} />;
+          },
+          tabBarActiveTintColor: '#0ba9bb',
+          tabBarInactiveTintColor: 'gray',
+        })}
+      >
+        <Tab.Screen name="Home" component={HomeScreen} options={withHeader('Home')} />
+        <Tab.Screen name="Patient" component={PatientScreen} options={withHeader('Patient')} />
+        <Tab.Screen name="Enquiry" component={EnquiryScreen} options={withHeader('Enquiry')} />
+        <Tab.Screen name="Scheme" component={SchemeScreen} options={withHeader('Scheme')} />
+      </Tab.Navigator>
+    </NavigationContainer>
+  );
+};
+
+export default App;
