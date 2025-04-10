@@ -3,11 +3,14 @@ require("dotenv").config();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
-pool.on("error", (err) => {
-  console.error("Unexpected error on idle PostgreSQL client", err);
-  process.exit(-1);
-});
+pool
+  .connect()
+  .then(() => console.log("Connected to PostgreSQL"))
+  .catch((err) => console.error("Connection error", err.stack));
 
 module.exports = pool;
