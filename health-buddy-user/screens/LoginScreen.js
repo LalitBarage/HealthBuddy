@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_URL } from '@env'; // Make sure this is defined in your .env file
+
 
 export const LoginScreen = ({ navigation }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
@@ -31,7 +30,7 @@ export const LoginScreen = ({ navigation }) => {
         Alert.alert('Login Success', 'You have successfully logged in!');
   
         // Save token in AsyncStorage
-        await AsyncStorage.setItem('userToken', data.token);
+        
   
         // Navigate to Home screen
         navigation.navigate('Home');
@@ -49,11 +48,11 @@ export const LoginScreen = ({ navigation }) => {
       <Text style={styles.title}>Welcome To HealthBuddy</Text>
 
       <TextInput
-        label="Phone number"
+        label="Email"
         mode="outlined"
-        value={phone}
-        onChangeText={setPhone}
-        keyboardType="phone-number"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
         style={styles.input}
       />
 
