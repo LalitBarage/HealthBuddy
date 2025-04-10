@@ -8,6 +8,7 @@ import {HomeScreen} from './screens/HomeScreen';
 import { PatientScreen } from './screens/PatientScreen';
 import { EnquiryScreen } from './screens/EnquiryScreen';
 import { SchemeScreen } from './screens/SchemeScreen';
+import { RegisterScreen } from './screens/RegisterScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -46,7 +47,7 @@ const App = () => {
             let iconName;
 
             switch (route.name) {
-              case 'Home':
+              case 'register':
                 iconName = 'home-outline';
                 break;
               case 'Patient':
@@ -68,7 +69,7 @@ const App = () => {
           tabBarInactiveTintColor: 'gray',
         })}
       >
-        <Tab.Screen name="Home" component={HomeScreen} options={withHeader('Home')} />
+        <Tab.Screen name="Register" component={RegisterScreen}/>
         <Tab.Screen name="Patient" component={PatientScreen} options={withHeader('Patient')} />
         <Tab.Screen name="Enquiry" component={EnquiryScreen} options={withHeader('Enquiry')} />
         <Tab.Screen name="Scheme" component={SchemeScreen} options={withHeader('Scheme')} />

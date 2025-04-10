@@ -5,45 +5,99 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Alert,
 } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { TextInput } from 'react-native-paper';
+import { API_URL, CLOUDINARY_URL, UPLOAD_PRESET } from '@env';
+
 
 export const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [hospitalName, setHospitalName] = useState('');
-  
+  const [mobileNo, setMobileNo] = useState('');
+  const [documentUrl, setDocumentUrl] = useState('');
   const [document, setDocument] = useState(null);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [pincode, setPincode] = useState('');
 
+
   const pickDocument = async () => {
     try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: '*/*',
+      const res = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf',
         copyToCacheDirectory: true,
-        multiple: false,
       });
 
-      if (!result.canceled) {
-        setDocument(result.assets[0]);
-        console.log('Picked file:', result.assets[0]);
+      if (res.canceled) return;
+
+      const file = {
+        uri: res.assets[0].uri,
+        type: 'application/pdf',
+        name: res.assets[0].name || 'document.pdf',
+      };
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset',UPLOAD_PRESET);
+
+      const response = await fetch(CLOUDINARY_URL, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.secure_url) {
+        setDocument(file);
+        setDocumentUrl(data.secure_url);
+        Alert.alert('Upload Success!', `URL: ${data.secure_url}`);
+      } else {
+        Alert.alert('Upload failed', JSON.stringify(data));
       }
     } catch (err) {
-      console.error('Document pick error:', err);
+      console.error('Upload error:', err);
+      Alert.alert('Error', err.message);
     }
   };
 
-  const handleRegister = () => {
-    console.log({
+  const handleRegister = async () => {
+    if (!documentUrl) {
+      Alert.alert('Please upload the required document before registering.');
+      return;
+    }
+
+    const payload = {
       email,
       password,
       hospitalName,
-      document,
+      mobileNo,
       pincode,
-    });
-   
+      document_url: documentUrl,
+    };
+
+    try {
+      const response = await fetch(`${API_URL}/api/auth/registerUser`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        Alert.alert('Success', 'Registered successfully!');
+        navigation.navigate('Login');
+      } else {
+        Alert.alert('Registration Failed', result.message || 'Something went wrong');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      Alert.alert('Error', 'Failed to register. Please try again.');
+    }
   };
 
   return (
@@ -58,20 +112,20 @@ export const RegisterScreen = ({ navigation }) => {
         keyboardType="email-address"
         style={styles.input}
       />
-     <TextInput
-             label="Password"
-             mode="outlined"
-             value={password}
-             onChangeText={setPassword}
-             secureTextEntry={!passwordVisible}
-             style={styles.input}
-             right={
-               <TextInput.Icon
-                 icon={passwordVisible ? 'eye-off' : 'eye'}
-                 onPress={() => setPasswordVisible(!passwordVisible)}
-               />
-             }
-           />
+      <TextInput
+        label="Password"
+        mode="outlined"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry={!passwordVisible}
+        style={styles.input}
+        right={
+          <TextInput.Icon
+            icon={passwordVisible ? 'eye-off' : 'eye'}
+            onPress={() => setPasswordVisible(!passwordVisible)}
+          />
+        }
+      />
       <TextInput
         mode="outlined"
         label="Hospital Name"
@@ -86,7 +140,14 @@ export const RegisterScreen = ({ navigation }) => {
         onChangeText={setPincode}
         style={styles.input}
       />
-     
+      <TextInput
+        mode="outlined"
+        label="Phone Number"
+        value={mobileNo}
+        onChangeText={setMobileNo}
+        keyboardType="phone-pad"
+        style={styles.input}
+      />
 
       <TouchableOpacity style={styles.fileButton} onPress={pickDocument}>
         <Text style={styles.fileButtonText}>
