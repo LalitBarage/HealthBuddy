@@ -6,6 +6,7 @@ const {
   createUser,
   getUserByEmail,
   createHospital,
+  getHospitalByEmail,
 } = require("../models/userModel");
 
 const registerUser = async (req, res) => {
@@ -100,7 +101,7 @@ const registerHospital = async (req, res) => {
   }
 
   try {
-    const existing = await getUserByEmail(email);
+    const existing = await getHospitalByEmail(email);
     if (existing) {
       return res.status(400).json({ error: "User already exists" });
     }
@@ -126,6 +127,28 @@ const registerHospital = async (req, res) => {
   }
 };
 
+const loginHospital = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const hospital = await getHospitalByEmail(email);
+    if (!hospital)
+      return res.status(400).json({ error: "Invalid email or password" });
+
+    const match = await bcrypt.compare(password, hospital.password);
+    if (!match)
+      return res.status(400).json({ error: "Invalid email or password" });
+
+    const token = jwt.sign({ id: hospital.hid }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    res.status(200).json({ hospital, token });
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 const logoutUser = async (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
@@ -135,4 +158,10 @@ const logoutUser = async (req, res) => {
   res.status(200).json({ message: "Logout successful" });
 };
 
-module.exports = { registerUser, loginUser, logoutUser, registerHospital };
+module.exports = {
+  registerUser,
+  loginUser,
+  logoutUser,
+  registerHospital,
+  loginHospital,
+};
