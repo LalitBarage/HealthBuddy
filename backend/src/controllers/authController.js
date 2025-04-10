@@ -67,8 +67,6 @@ const registerHospital = async (req, res) => {
   const { email, password, hospitalName, pincode, mobileNo, documentUrl } =
     req.body;
 
-  console.log("Request body:", req.body);
-
   if (
     !email ||
     !password ||
