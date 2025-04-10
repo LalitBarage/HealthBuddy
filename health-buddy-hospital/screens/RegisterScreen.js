@@ -63,6 +63,7 @@ export const RegisterScreen = ({ navigation }) => {
   };
 
   const handleRegister = async () => {
+    console.log("You have clicked");
     if (!documentUrl) {
       Alert.alert('Please upload the required document before registering.');
       return;
@@ -76,16 +77,17 @@ export const RegisterScreen = ({ navigation }) => {
       pincode,
       document_url: documentUrl,
     };
-
+    console.log(payload);
     try {
-      const response = await fetch(`${API_URL}/api/auth/registerUser`, {
+      const response = await fetch(`${API_URL}/api/auth/registerHospital`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
+        
       });
-
+      console.log("Payload: ", payload);
       const result = await response.json();
 
       if (response.ok) {
