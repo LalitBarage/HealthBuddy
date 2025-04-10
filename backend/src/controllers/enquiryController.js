@@ -1,6 +1,6 @@
 require("dotenv").config();
 const axios = require("axios");
-const { createEnquiry } = require("../models/enquiryModel");
+const { createEnquiry, getEnquiries } = require("../models/enquiryModel");
 
 const addEnquiry = async (req, res) => {
   const { pid, hid, diseases, pincode } = req.body;
@@ -49,8 +49,17 @@ const addEnquiry = async (req, res) => {
   }
 };
 
-const getEnquiries = async (req, res) => {
+const getAllEnquiries = async (req, res) => {
   try {
+    const result = await getEnquiries();
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: "No enquiries found" });
+    }
+
+    return res
+      .status(200)
+      .json(result, { message: "Enquiries fetched successfully" });
   } catch (error) {
     console.error("Error fetching enquiries:", error.message);
     return res.status(500).json({ error: "Failed to fetch enquiries" });
@@ -59,5 +68,5 @@ const getEnquiries = async (req, res) => {
 
 module.exports = {
   addEnquiry,
-  getEnquiries,
+  getAllEnquiries,
 };

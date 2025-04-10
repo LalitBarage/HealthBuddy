@@ -16,6 +16,12 @@ const createEnquiry = async ({
   return result.rows[0];
 };
 
+const getEnquiries = async () => {
+  const result = await db.query("SELECT * FROM enquiry");
+  return result.rows;
+};
+
 module.exports = {
   createEnquiry,
+  getEnquiries,
 };
