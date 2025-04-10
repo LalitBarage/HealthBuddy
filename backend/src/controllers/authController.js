@@ -135,6 +135,9 @@ const loginHospital = async (req, res) => {
     if (!hospital)
       return res.status(400).json({ error: "Invalid email or password" });
 
+    if (!hospital.status)
+      return res.status(400).json({ error: "Hospital not approved yet" });
+
     const match = await bcrypt.compare(password, hospital.password);
     if (!match)
       return res.status(400).json({ error: "Invalid email or password" });
@@ -143,7 +146,7 @@ const loginHospital = async (req, res) => {
       expiresIn: "1d",
     });
 
-    res.status(200).json({ hospital, token });
+    res.status(200).json({ hospital, token, message: "Login successful" });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
   }
