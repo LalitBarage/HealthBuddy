@@ -63,21 +63,35 @@ export const RegisterScreen = ({ navigation }) => {
   };
 
   const handleRegister = async () => {
-    console.log("You have clicked");
-    if (!documentUrl) {
-      Alert.alert('Please upload the required document before registering.');
+    // Email format regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Mobile number: allows 10 digits only
+    const phoneRegex = /^[0-9]{10}$/;
+  
+    if (!email || !emailRegex.test(email)) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
-
+  
+    if (!mobileNo || !phoneRegex.test(mobileNo)) {
+      Alert.alert('Invalid Phone Number', 'Please enter a valid 10-digit phone number.');
+      return;
+    }
+  
+    if (!documentUrl) {
+      Alert.alert('Missing Document', 'Please upload the required document before registering.');
+      return;
+    }
+  
     const payload = {
       email,
       password,
       hospitalName,
       mobileNo,
       pincode,
-      document_url: documentUrl,
+      documentUrl,
     };
-    console.log(payload);
+  
     try {
       const response = await fetch(`${API_URL}/api/auth/registerHospital`, {
         method: 'POST',
@@ -85,11 +99,10 @@ export const RegisterScreen = ({ navigation }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
-        
       });
-      console.log("Payload: ", payload);
+  
       const result = await response.json();
-
+  
       if (response.ok) {
         Alert.alert('Success', 'Registered successfully!');
         navigation.navigate('Login');
@@ -101,6 +114,7 @@ export const RegisterScreen = ({ navigation }) => {
       Alert.alert('Error', 'Failed to register. Please try again.');
     }
   };
+  
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

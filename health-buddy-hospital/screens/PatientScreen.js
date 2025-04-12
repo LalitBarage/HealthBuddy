@@ -7,8 +7,10 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import { TextInput, Button, Text, Provider } from 'react-native-paper';
+import { TextInput, Button, Text, Provider, ActivityIndicator } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { API_URL} from '@env';
+import axios from "axios"
 
 export const PatientScreen = () => {
   const [phone, setPhone] = useState('');
@@ -16,11 +18,10 @@ export const PatientScreen = () => {
     name: '',
     aadhar: '',
     dob: '',
-    address: '',
     gender: '',
     pincode: '',
   });
-
+  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [isExisting, setIsExisting] = useState(false);
   const [dobPickerVisible, setDobPickerVisible] = useState(false);
@@ -30,37 +31,6 @@ export const PatientScreen = () => {
 
   const validatePhone = (value) => /^\d{10}$/.test(value);
   const validateAadhar = (value) => /^\d{12}$/.test(value);
-
-  const fetchDetails = () => {
-    if (!validatePhone(phone)) {
-      setErrors({ phone: 'Phone number must be 10 digits' });
-      return;
-    }
-
-    setErrors({});
-    if (phone === '9999999999') {
-      setPatient({
-        name: 'John Doe',
-        aadhar: '123456789012',
-        dob: '1990-01-01',
-        address: '123 Health Street',
-        gender: 'Male',
-        pincode: '123456',
-      });
-      setIsExisting(true);
-    } else {
-      setPatient({
-        name: '',
-        aadhar: '',
-        dob: '',
-        address: '',
-        gender: '',
-        pincode: '',
-      });
-      setIsExisting(false);
-      Alert.alert('New Patient', 'No existing record found. Please fill in details.');
-    }
-  };
 
   const handleChange = (field, value) => {
     setPatient({ ...patient, [field]: value });
@@ -82,14 +52,47 @@ export const PatientScreen = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validatePhone(phone) || !validateAadhar(patient.aadhar)) {
       Alert.alert('Validation Error', 'Please correct the highlighted fields.');
       return;
     }
-
-    Alert.alert('Success', isExisting ? 'Patient updated.' : 'New patient registered.');
-    // Submit logic here
+    setLoading(true);  
+    try {
+      const payload = {
+        pFirstName: patient.name.split(' ')[0] || '',
+        pLastName: patient.name.split(' ')[1] || '',
+        addhar: patient.aadhar,
+        dob: patient.dob,
+        mobileno: phone,
+        gender: patient.gender,
+        pincode: patient.pincode,
+      };
+      console.log(API_URL);
+  
+      const response = await axios.post(`${API_URL}/api/auth/registerUser`, payload);
+  
+      if (response.status === 201) {
+        Alert.alert('Success', 'Patient registered successfully!');
+        setPatient({
+          name: '',
+          aadhar: '',
+          dob: '',
+          address: '',
+          gender: '',
+          pincode: '',
+        });
+        setPhone('');
+      } else {
+        Alert.alert('Error', 'Something went wrong. Please try again.');
+      }
+    } catch (err) {
+      console.error(err);
+      const message = err.response?.data?.error || 'Server error';
+      Alert.alert('Registration Failed', message);
+    }finally{
+      setLoading(false);
+    }
   };
 
   return (
@@ -113,14 +116,7 @@ export const PatientScreen = () => {
         />
         {errors.phone ? <Text style={styles.error}>{errors.phone}</Text> : null}
 
-        <Button
-          mode="contained"
-          onPress={fetchDetails}
-          style={styles.fetchButton}
-          disabled={!validatePhone(phone)}
-        >
-          Fetch Details
-        </Button>
+        
 
         <TextInput
           label="Patient Name"
@@ -193,13 +189,6 @@ export const PatientScreen = () => {
         </View>
 
         <TextInput
-          label="Address"
-          mode="outlined"
-          value={patient.address}
-          onChangeText={(val) => handleChange('address', val)}
-          style={styles.input}
-        />
-        <TextInput
           label="Pincode"
           mode="outlined"
           keyboardType="numeric"
@@ -210,7 +199,11 @@ export const PatientScreen = () => {
 
         <TouchableOpacity style={styles.registerButton} onPress={handleSubmit}>
           <Text style={styles.buttonText}>
-            {isExisting ? 'Update Patient' : 'Register Patient'}
+            {loading ? (
+                <ActivityIndicator animating={true} color="white" size="small" />
+              ) : (
+                'Register Patient'
+              )}
           </Text>
         </TouchableOpacity>
       </ScrollView>

@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet,Alert } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import { API_URL} from '@env';
+import axios from "axios"
 
 
 export const LoginScreen = ({ navigation }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
     const payload = {
-      email,
+      phone,
       password,
     };
   
     try {
-      const response = await fetch(`${API_URL}/api/auth/loginHospital`, {
+      const response = await fetch(`${API_URL}/api/auth/loginUser`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,14 +28,10 @@ export const LoginScreen = ({ navigation }) => {
   
       const data = await response.json();
   
-      if (response.ok && data.token) {
+      if (response.ok || data.token) {
         Alert.alert('Login Success', 'You have successfully logged in!');
-  
-        // Save token in AsyncStorage
-        
-  
-        // Navigate to Home screen
-        navigation.navigate('Home');
+        onLoginSuccess(data.token);
+        navigation.navigate('Main');
       } else {
         Alert.alert('Login Failed', data.message || 'Something went wrong');
       }
@@ -48,10 +46,10 @@ export const LoginScreen = ({ navigation }) => {
       <Text style={styles.title}>Welcome To HealthBuddy</Text>
 
       <TextInput
-        label="Email"
+        label="Phone No"
         mode="outlined"
-        value={email}
-        onChangeText={setEmail}
+        value={phone}
+        onChangeText={setPhone}
         keyboardType="email-address"
         style={styles.input}
       />

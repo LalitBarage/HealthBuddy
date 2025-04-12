@@ -37,14 +37,14 @@ const BillScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Your Bills</Text>
-      <FlatList
-        data={bills}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
-    </View>
+    <Text style={styles.title}>Your Bills</Text>
+    <FlatList
+      data={bills}
+      keyExtractor={(item) => item.id}
+      renderItem={renderItem}
+      contentContainerStyle={{ paddingBottom: 20, marginTop: 20 }} // 👈 Add marginTop here
+    />
+  </View>  
   );
 };
 

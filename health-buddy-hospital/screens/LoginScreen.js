@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet,Alert} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { TextInput } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '@env'; // Make sure this is defined in your .env file
+ // Import the context
 
-export const LoginScreen = ({ navigation }) => {
+export const LoginScreen = ({ onLoginSuccess }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigation = useNavigation();
+
 
   const handleLogin = async () => {
+    
     const payload = {
       email,
       password,
@@ -26,15 +31,17 @@ export const LoginScreen = ({ navigation }) => {
       });
   
       const data = await response.json();
+      console.log('Login response:', data);
   
-      if (response.ok && data.token) {
+      if (response.ok || data.token) {
         Alert.alert('Login Success', 'You have successfully logged in!');
   
         // Save token in AsyncStorage
-        await AsyncStorage.setItem('userToken', data.token);
-  
-        // Navigate to Home screen
-        navigation.navigate('Home');
+        onLoginSuccess(data.token);
+        await AsyncStorage.setItem('id', String(data.hospital?.hid));
+
+        console.log('Hospital ID:', data.hospital?.hid);
+        navigation.navigate('Main');
       } else {
         Alert.alert('Login Failed', data.message || 'Something went wrong');
       }
@@ -49,11 +56,11 @@ export const LoginScreen = ({ navigation }) => {
       <Text style={styles.title}>Welcome To HealthBuddy</Text>
 
       <TextInput
-        label="Phone number"
+        label="Email"
         mode="outlined"
-        value={phone}
-        onChangeText={setPhone}
-        keyboardType="phone-number"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
         style={styles.input}
       />
 

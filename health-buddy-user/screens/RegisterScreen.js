@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import { TextInput, Button, Text, Provider } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { API_URL} from '@env';
+import axios from "axios"
 
 export const RegisterScreen = () => {
   const [phone, setPhone] = useState('');
@@ -16,7 +18,6 @@ export const RegisterScreen = () => {
     name: '',
     aadhar: '',
     dob: '',
-    address: '',
     gender: '',
     pincode: '',
   });
@@ -30,37 +31,6 @@ export const RegisterScreen = () => {
 
   const validatePhone = (value) => /^\d{10}$/.test(value);
   const validateAadhar = (value) => /^\d{12}$/.test(value);
-
-  const fetchDetails = () => {
-    if (!validatePhone(phone)) {
-      setErrors({ phone: 'Phone number must be 10 digits' });
-      return;
-    }
-
-    setErrors({});
-    if (phone === '9999999999') {
-      setPatient({
-        name: 'John Doe',
-        aadhar: '123456789012',
-        dob: '1990-01-01',
-        address: '123 Health Street',
-        gender: 'Male',
-        pincode: '123456',
-      });
-      setIsExisting(true);
-    } else {
-      setPatient({
-        name: '',
-        aadhar: '',
-        dob: '',
-        address: '',
-        gender: '',
-        pincode: '',
-      });
-      setIsExisting(false);
-      Alert.alert('New Patient', 'No existing record found. Please fill in details.');
-    }
-  };
 
   const handleChange = (field, value) => {
     setPatient({ ...patient, [field]: value });
@@ -82,19 +52,50 @@ export const RegisterScreen = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validatePhone(phone) || !validateAadhar(patient.aadhar)) {
       Alert.alert('Validation Error', 'Please correct the highlighted fields.');
       return;
     }
-
-    Alert.alert('Success', isExisting ? 'Patient updated.' : 'New patient registered.');
-    // Submit logic here
+  
+    try {
+      const payload = {
+        pFirstName: patient.name.split(' ')[0] || '',
+        pLastName: patient.name.split(' ')[1] || '',
+        addhar: patient.aadhar,
+        dob: patient.dob,
+        mobileno: phone,
+        gender: patient.gender,
+        pincode: patient.pincode,
+      };
+  
+      const response = await axios.post(`${API_URL}/api/auth/registerUser`, payload);
+  
+      if (response.status === 201) {
+        Alert.alert('Success', 'Patient registered successfully!');
+        setPatient({
+          name: '',
+          aadhar: '',
+          dob: '',
+          address: '',
+          gender: '',
+          pincode: '',
+        });
+        setPhone('');
+      } else {
+        Alert.alert('Error', 'Something went wrong. Please try again.');
+      }
+    } catch (err) {
+      console.error(err);
+      const message = err.response?.data?.error || 'Server error';
+      Alert.alert('Registration Failed', message);
+    }
   };
 
   return (
     <Provider>
       <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Register</Text>
         <TextInput
           label="Phone Number"
           mode="outlined"
@@ -113,14 +114,7 @@ export const RegisterScreen = () => {
         />
         {errors.phone ? <Text style={styles.error}>{errors.phone}</Text> : null}
 
-        <Button
-          mode="contained"
-          onPress={fetchDetails}
-          style={styles.fetchButton}
-          disabled={!validatePhone(phone)}
-        >
-          Fetch Details
-        </Button>
+        
 
         <TextInput
           label="Patient Name"
@@ -193,13 +187,6 @@ export const RegisterScreen = () => {
         </View>
 
         <TextInput
-          label="Address"
-          mode="outlined"
-          value={patient.address}
-          onChangeText={(val) => handleChange('address', val)}
-          style={styles.input}
-        />
-        <TextInput
           label="Pincode"
           mode="outlined"
           keyboardType="numeric"
@@ -224,6 +211,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9fafd',
     flexGrow: 1,
     justifyContent: 'center',
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 32,
+    color: '#0ba9bb',
   },
   input: {
     marginBottom: 16,
