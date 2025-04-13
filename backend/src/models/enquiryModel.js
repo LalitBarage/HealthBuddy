@@ -29,7 +29,7 @@ const getEnquiryByHid = async (hid) => {
 const updateEnquiry = async (eid, { pid, hid, diseases, pincode }) => {
   const result = await db.query(
     "UPDATE enquiry SET pid = $1, hid = $2, diseases = $3, pincode = $4 WHERE eid = $5 RETURNING *",
-    [pid, hid, diseases, pincode, id]
+    [pid, hid, diseases, pincode, eid]
   );
   return result.rows[0];
 };
