@@ -6,6 +6,7 @@ const appliedScheme = async (req, res) => {
   const {
     scid,
     pid,
+    hid,
     income_cert_url,
     caste_cert_url,
     ele_bill_url,
@@ -16,6 +17,7 @@ const appliedScheme = async (req, res) => {
   if (
     !scid ||
     !pid ||
+    !hid ||
     !income_cert_url ||
     !caste_cert_url ||
     !ele_bill_url ||
@@ -51,6 +53,7 @@ const appliedScheme = async (req, res) => {
     const scheme = await addApplyScheme({
       scid,
       pid,
+      hid,
       income_cert_url,
       caste_cert_url,
       ele_bill_url,
