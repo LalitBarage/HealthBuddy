@@ -47,6 +47,9 @@ const registerUser = async (req, res) => {
       .json({ error: "Failed to fetch location from pincode" });
   }
 
+  const password = addhar.toString().slice(-6);
+  const hashed = await bcrypt.hash(password, 10);
+
   try {
     const existing = await getUserByPaddhar(addhar);
     if (existing) return res.status(400).json({ error: "User already exists" });
@@ -62,6 +65,7 @@ const registerUser = async (req, res) => {
       sub_dist,
       dist,
       state,
+      password: hashed,
     });
 
     res.status(201).json({ patient });

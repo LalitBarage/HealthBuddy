@@ -94,7 +94,7 @@ const getAllEnquiriesByHid = async (req, res) => {
 };
 
 const editEnquiry = async (req, res) => {
-  const { id } = req.params;
+  const { eid } = req.params;
   const { pid, hid, diseases, pincode } = req.body;
 
   if (!pid || !hid || !diseases || !pincode) {
@@ -102,7 +102,7 @@ const editEnquiry = async (req, res) => {
   }
 
   try {
-    const updatedEnquiry = await updateEnquiry(id, {
+    const updatedEnquiry = await updateEnquiry(eid, {
       pid,
       hid,
       diseases,
