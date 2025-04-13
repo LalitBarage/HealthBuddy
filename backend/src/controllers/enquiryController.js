@@ -6,6 +6,7 @@ const {
   updateEnquiry,
   getUserMobileNo,
   getEnquiryByHid,
+  deleteEnquiryByEid,
 } = require("../models/enquiryModel");
 
 const addEnquiry = async (req, res) => {
@@ -138,6 +139,22 @@ const getUserMobile = async (req, res) => {
     return res.status(500).json({ error: "Failed to fetch user mobile" });
   }
 };
+const deleteEnquiry = async (req, res) => {
+  const { eid } = req.params;
+
+  try {
+    const result = await deleteEnquiryByEid(eid);
+
+    if (!result) {
+      return res.status(404).json({ message: "Enquiry not found" });
+    }
+
+    return res.status(200).json({ message: "Enquiry deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting enquiry:", error.message);
+    return res.status(500).json({ error: "Failed to delete enquiry" });
+  }
+};
 
 module.exports = {
   addEnquiry,
@@ -145,4 +162,5 @@ module.exports = {
   editEnquiry,
   getUserMobile,
   getAllEnquiriesByHid,
+  deleteEnquiry,
 };

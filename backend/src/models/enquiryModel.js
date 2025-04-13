@@ -42,10 +42,16 @@ const getUserMobileNo = async (pid) => {
   return result.rows[0].pmobileno;
 };
 
+const deleteEnquiryByEid = async (eid) => {
+  const result = await db.query("DELETE FROM enquiry WHERE eid = $1", [eid]);
+  return result.rowCount > 0;
+};
+
 module.exports = {
   createEnquiry,
   getEnquiries,
   updateEnquiry,
   getUserMobileNo,
   getEnquiryByHid,
+  deleteEnquiryByEid,
 };

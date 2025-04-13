@@ -6,12 +6,14 @@ const {
   editEnquiry,
   getUserMobile,
   getAllEnquiriesByHid,
+  deleteEnquiry,
 } = require("../controllers/enquiryController");
 
 router.post("/addEnquiry", addEnquiry);
 router.get("/getAllEnquiries", getAllEnquiries);
 router.put("/updateEnquiry/:eid", editEnquiry);
 router.get("/getUserMobile/:pid", getUserMobile);
-router.get("/getAllEnquiries/:hid", getAllEnquiriesByHid); // Assuming you want to get a specific enquiry by ID
+router.get("/getAllEnquiries/:hid", getAllEnquiriesByHid);
+router.delete("/deleteEnquiry/:eid", deleteEnquiry);
 
 module.exports = router;
