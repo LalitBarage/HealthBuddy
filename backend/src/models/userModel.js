@@ -14,7 +14,7 @@ const createUser = async ({
   password,
 }) => {
   const result = await db.query(
-    "INSERT INTO patient (pname_firstname, pname_lastname, paddhar, pmobileno, dob, gender, pincode, sub_dist, dist, state) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING pid, pname_firstname, pname_lastname, paddhar, pmobileno, dob, gender, pincode, sub_dist, dist, state",
+    "INSERT INTO patient (pname_firstname, pname_lastname, paddhar, pmobileno, dob, gender, pincode, sub_dist, dist, state, password) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING pid, pname_firstname, pname_lastname, paddhar, pmobileno, dob, gender, pincode, sub_dist, dist, state",
     [
       pFirstName,
       pLastName,
