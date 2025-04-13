@@ -30,9 +30,9 @@ const createUser = async ({
   return result.rows[0];
 };
 
-const getUserByPaddhar = async (addhar) => {
+const getUserByPaddhar = async (paddhar) => {
   const result = await db.query("SELECT * FROM patient WHERE paddhar = $1", [
-    addhar,
+    paddhar,
   ]);
   return result.rows[0];
 };

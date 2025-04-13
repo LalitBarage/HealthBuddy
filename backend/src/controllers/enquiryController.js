@@ -1,6 +1,12 @@
 require("dotenv").config();
 const axios = require("axios");
-const { createEnquiry, getEnquiries } = require("../models/enquiryModel");
+const {
+  createEnquiry,
+  getEnquiries,
+  updateEnquiry,
+  getUserMobileNo,
+  getEnquiryByHid,
+} = require("../models/enquiryModel");
 
 const addEnquiry = async (req, res) => {
   const { pid, hid, diseases, pincode } = req.body;
@@ -66,7 +72,77 @@ const getAllEnquiries = async (req, res) => {
   }
 };
 
+const getAllEnquiriesByHid = async (req, res) => {
+  const { hid } = req.params;
+
+  try {
+    const result = await getEnquiryByHid(hid);
+
+    if (result.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No enquiries found for this hid" });
+    }
+
+    return res
+      .status(200)
+      .json(result, { message: "Enquiries fetched successfully" });
+  } catch (error) {
+    console.error("Error fetching enquiries:", error.message);
+    return res.status(500).json({ error: "Failed to fetch enquiries" });
+  }
+};
+
+const editEnquiry = async (req, res) => {
+  const { id } = req.params;
+  const { pid, hid, diseases, pincode } = req.body;
+
+  if (!pid || !hid || !diseases || !pincode) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  try {
+    const updatedEnquiry = await updateEnquiry(id, {
+      pid,
+      hid,
+      diseases,
+      pincode,
+    });
+
+    if (!updatedEnquiry) {
+      return res.status(404).json({ message: "Enquiry not found" });
+    }
+
+    return res
+      .status(200)
+      .json(updatedEnquiry, { message: "Enquiry updated successfully" });
+  } catch (error) {
+    console.error("Error updating enquiry:", error.message);
+    return res.status(500).json({ error: "Failed to update enquiry" });
+  }
+};
+
+const getUserMobile = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await getUserMobileNo(id);
+
+    if (!result) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json(result, { message: "User mobile fetched" });
+  } catch (error) {
+    console.error("Error fetching user mobile:", error.message);
+    return res.status(500).json({ error: "Failed to fetch user mobile" });
+  }
+};
+
 module.exports = {
   addEnquiry,
   getAllEnquiries,
+  editEnquiry,
+  getUserMobile,
+  getAllEnquiriesByHid,
 };

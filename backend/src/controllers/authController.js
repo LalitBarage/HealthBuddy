@@ -71,10 +71,10 @@ const registerUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  const { paddhar, password } = req.body;
 
   try {
-    const user = await getUserByEmail(email);
+    const user = await getUserByPaddhar(paddhar);
     if (!user)
       return res.status(400).json({ error: "Invalid email or password" });
 
@@ -84,12 +84,6 @@ const loginUser = async (req, res) => {
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
-    });
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      sameSite: "lax",
-      maxAge: 24 * 60 * 60 * 1000,
     });
 
     res.status(200).json({ user, token });
