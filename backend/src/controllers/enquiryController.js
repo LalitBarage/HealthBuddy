@@ -123,10 +123,10 @@ const editEnquiry = async (req, res) => {
 };
 
 const getUserMobile = async (req, res) => {
-  const { id } = req.params;
+  const { pid } = req.params;
 
   try {
-    const result = await getUserMobileNo(id);
+    const result = await getUserMobileNo(pid);
 
     if (!result) {
       return res.status(404).json({ message: "User not found" });
