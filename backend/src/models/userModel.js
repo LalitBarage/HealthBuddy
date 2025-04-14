@@ -75,9 +75,18 @@ const getHospitalByEmail = async (email) => {
   return result.rows[0];
 };
 
+const updateUserPassword = async (paddhar, password) => {
+  const result = await db.query(
+    "UPDATE patient SET password = $1 WHERE paddhar = $2 RETURNING *",
+    [password, paddhar]
+  );
+  return result.rows[0];
+};
+
 module.exports = {
   createUser,
   getUserByPaddhar,
   createHospital,
   getHospitalByEmail,
+  updateUserPassword,
 };

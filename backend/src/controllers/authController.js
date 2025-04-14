@@ -7,6 +7,7 @@ const {
   createHospital,
   getHospitalByEmail,
   getUserByPaddhar,
+  updateUserPassword,
 } = require("../models/userModel");
 
 const registerUser = async (req, res) => {
@@ -194,10 +195,41 @@ const logoutUser = async (req, res) => {
   res.status(200).json({ message: "Logout successful" });
 };
 
+const userProfile = async (req, res) => {
+  const { paddhar } = req.params;
+  try {
+    const user = await getUserByPaddhar(paddhar);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const { password, ...userWithoutPassword } = user;
+    res.status(200).json(userWithoutPassword);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+const changePassword = async (req, res) => {
+  const { paddhar, newPassword } = req.body;
+
+  try {
+    const user = await getUserByPaddhar(paddhar);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    await updateUserPassword(paddhar, hashedNewPassword);
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   logoutUser,
   registerHospital,
   loginHospital,
+  userProfile,
+  changePassword,
 };
