@@ -71,10 +71,19 @@ const deleteAppliedSchemeId = async (apscid) => {
   return result.rows[0];
 };
 
+const getAppliedSchemeByHid = async (hid) => {
+  const result = await db.query(
+    "SELECT * FROM applied_schemes WHERE hid = $1",
+    [hid]
+  );
+  return result.rows;
+};
+
 module.exports = {
   addApplyScheme,
   getAppliedSchemeByPid,
   getAppliedSchemeByApscid,
   updateAppliedSchemeDoc,
   deleteAppliedSchemeId,
+  getAppliedSchemeByHid,
 };

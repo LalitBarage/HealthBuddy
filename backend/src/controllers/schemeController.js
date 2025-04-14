@@ -6,6 +6,7 @@ const {
   getAppliedSchemeByApscid,
   updateAppliedSchemeDoc,
   deleteAppliedSchemeId,
+  getAppliedSchemeByHid,
 } = require("../models/schemeModel");
 
 const appliedScheme = async (req, res) => {
@@ -150,9 +151,29 @@ const deleteAppliedScheme = async (req, res) => {
   }
 };
 
+const getAppliedSchemeHospital = async (req, res) => {
+  const { hid } = req.params;
+
+  if (!hid) {
+    return res.status(400).json({ message: "HID is required" });
+  }
+
+  try {
+    const schemes = await getAppliedSchemeByHid(hid);
+    if (schemes.length === 0) {
+      return res.status(404).json({ message: "No schemes found for this HID" });
+    }
+    return res.status(200).json(schemes);
+  } catch (error) {
+    console.error("Error fetching applied schemes:", error.message);
+    return res.status(500).json({ error: "Failed to fetch applied schemes" });
+  }
+};
+
 module.exports = {
   appliedScheme,
   getAppliedScheme,
   updateAppliedScheme,
   deleteAppliedScheme,
+  getAppliedSchemeHospital,
 };
