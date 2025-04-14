@@ -1,7 +1,11 @@
 const express = require("express");
-const { appliedScheme } = require("../controllers/schemeController");
+const {
+  appliedScheme,
+  getAppliedScheme,
+} = require("../controllers/schemeController");
 const router = express.Router();
 
 router.post("/applyScheme", appliedScheme);
+router.get("/getAppliedScheme", getAppliedScheme);
 
 module.exports = router;

@@ -1,6 +1,9 @@
 require("dotenv").config();
 const axios = require("axios");
-const { addApplyScheme } = require("../models/schemeModel");
+const {
+  addApplyScheme,
+  getAppliedSchemeByPid,
+} = require("../models/schemeModel");
 
 const appliedScheme = async (req, res) => {
   const {
@@ -72,6 +75,26 @@ const appliedScheme = async (req, res) => {
   }
 };
 
+const getAppliedScheme = async (req, res) => {
+  const { pid } = req.body;
+
+  if (!pid) {
+    return res.status(400).json({ message: "PID is required" });
+  }
+
+  try {
+    const schemes = await getAppliedSchemeByPid(pid);
+    if (schemes.length === 0) {
+      return res.status(404).json({ message: "No schemes found for this PID" });
+    }
+    return res.status(200).json(schemes);
+  } catch (error) {
+    console.error("Error fetching applied schemes:", error.message);
+    return res.status(500).json({ error: "Failed to fetch applied schemes" });
+  }
+};
+
 module.exports = {
   appliedScheme,
+  getAppliedScheme,
 };

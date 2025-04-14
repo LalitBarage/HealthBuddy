@@ -32,6 +32,15 @@ const addApplyScheme = async ({
   return result.rows[0];
 };
 
+const getAppliedSchemeByPid = async (pid) => {
+  const result = await db.query(
+    "SELECT * FROM applied_schemes WHERE pid = $1",
+    [pid]
+  );
+  return result.rows;
+};
+
 module.exports = {
   addApplyScheme,
+  getAppliedSchemeByPid,
 };

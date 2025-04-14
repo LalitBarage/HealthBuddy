@@ -5,6 +5,7 @@ const authRoutes = require("./src/routes/authRoutes");
 const enquiryRoutes = require("./src/routes/enquiryRoutes");
 const schemeRoutes = require("./src/routes/schemeRouter");
 const cookieParser = require("cookie-parser");
+const verifyToken = require("./src/middlewares/authMiddleware");
 
 const app = express();
 
@@ -13,8 +14,8 @@ app.use(cors());
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
-app.use("/api/enquiry", enquiryRoutes);
-app.use("/api/scheme", schemeRoutes);
+app.use("/api/enquiry", verifyToken, enquiryRoutes);
+app.use("/api/scheme", verifyToken, schemeRoutes);
 
 const PORT = process.env.PORT || 5000;
 
