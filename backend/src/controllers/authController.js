@@ -209,7 +209,8 @@ const userProfile = async (req, res) => {
 };
 
 const changePassword = async (req, res) => {
-  const { paddhar, newPassword } = req.body;
+  const { paddhar } = req.params;
+  const { newPassword } = req.body;
 
   try {
     const user = await getUserByPaddhar(paddhar);

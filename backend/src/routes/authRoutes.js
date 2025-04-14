@@ -15,7 +15,7 @@ router.post("/registerUser", registerUser);
 router.post("/loginUser", loginUser);
 router.get("/userProfile/:paddhar", verifyToken, userProfile);
 router.post("/logout", verifyToken, logoutUser);
-router.put("/changePassword", verifyToken, changePassword);
+router.put("/changePassword/:paddhar", verifyToken, changePassword);
 
 router.post("/registerHospital", registerHospital);
 router.post("/loginHospital", loginHospital);
