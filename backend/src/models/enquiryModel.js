@@ -26,6 +26,11 @@ const getEnquiryByHid = async (hid) => {
   return result.rows;
 };
 
+const getEnquiryByPid = async (pid) => {
+  const result = await db.query("SELECT * FROM enquiry WHERE pid = $1", [pid]);
+  return result.rows;
+};
+
 const updateEnquiry = async (eid, { pid, hid, diseases, pincode }) => {
   const result = await db.query(
     "UPDATE enquiry SET pid = $1, hid = $2, diseases = $3, pincode = $4 WHERE eid = $5 RETURNING *",
@@ -54,4 +59,5 @@ module.exports = {
   getUserMobileNo,
   getEnquiryByHid,
   deleteEnquiryByEid,
+  getEnquiryByPid,
 };

@@ -7,6 +7,7 @@ const {
   getUserMobileNo,
   getEnquiryByHid,
   deleteEnquiryByEid,
+  getEnquiryByPid,
 } = require("../models/enquiryModel");
 
 const addEnquiry = async (req, res) => {
@@ -156,6 +157,27 @@ const deleteEnquiry = async (req, res) => {
   }
 };
 
+const getAllEnquiriesByPid = async (req, res) => {
+  const { pid } = req.params;
+
+  try {
+    const result = await getEnquiryByPid(pid);
+
+    if (result.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No enquiries found for this pid" });
+    }
+
+    return res
+      .status(200)
+      .json(result, { message: "Enquiries fetched successfully" });
+  } catch (error) {
+    console.error("Error fetching enquiries:", error.message);
+    return res.status(500).json({ error: "Failed to fetch enquiries" });
+  }
+};
+
 module.exports = {
   addEnquiry,
   getAllEnquiries,
@@ -163,4 +185,5 @@ module.exports = {
   getUserMobile,
   getAllEnquiriesByHid,
   deleteEnquiry,
+  getAllEnquiriesByPid,
 };
