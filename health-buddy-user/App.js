@@ -10,7 +10,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { HomeScreen } from './screens/HomeScreen';
 import { InfoScreen } from './screens/InfoScreen';
 import { AschemeScreen } from './screens/AschemeScreen';
-import { BillScreen } from './screens/BillScreen';
+import BillScreen from './screens/BillScreen'
 import { NotificationScreen } from './screens/NotificationScreen';
 import { LoginScreen } from './screens/LoginScreen';
 import { RegisterScreen } from './screens/RegisterScreen';
@@ -28,10 +28,10 @@ const TabNavigator = ({ navigation, handleLogout }) => (
           case 'Home':
             iconName = 'home-outline';
             break;
-          case 'Info':
+          case 'History':
             iconName = 'information-outline';
             break;
-          case 'Ascheme':
+          case 'Applied Scheme':
             iconName = 'file-document-outline';
             break;
           case 'Bill':
@@ -61,8 +61,8 @@ const TabNavigator = ({ navigation, handleLogout }) => (
     })}
   >
     <Tab.Screen name="Home" component={HomeScreen} />
-    <Tab.Screen name="Info" component={InfoScreen} />
-    <Tab.Screen name="Ascheme" component={AschemeScreen} />
+    <Tab.Screen name="History" component={InfoScreen} />
+    <Tab.Screen name="Applied Scheme" component={AschemeScreen} />
     <Tab.Screen name="Bill" component={BillScreen} />
   </Tab.Navigator>
 );
@@ -125,6 +125,10 @@ const App = () => {
               {() => <LoginScreen onLoginSuccess={handleLoginSuccess} />}
             </Stack.Screen>
             <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen name="Home" component={HomeScreen}/>
+            <Stack.Screen name="Info" component={InfoScreen} />
+            <Stack.Screen name="Ascheme" component={AschemeScreen} />
+            <Stack.Screen name="Bill" component={BillScreen} />
           </>
         )}
       </Stack.Navigator>

@@ -1,53 +1,57 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet,Alert} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { TextInput } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_URL } from '@env'; // Make sure this is defined in your .env file
- // Import the context
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { TextInput } from "react-native-paper";
+import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+// import { API_URL } from "@env"; // Make sure this is defined in your .env file
+// Import the context
 
 export const LoginScreen = ({ onLoginSuccess }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigation = useNavigation();
 
-
   const handleLogin = async () => {
-    
+    console.log("Login button pressed");
+    // console.log(API_URL);
     const payload = {
       email,
       password,
     };
-  
+
     try {
-      const response = await fetch(`${API_URL}/api/auth/loginHospital`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-  
+      const response = await fetch(
+        "http://192.168.184.106:3000/api/auth/loginHospital",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
       const data = await response.json();
-      console.log('Login response:', data);
-  
+      console.log("Login response:", data);
+
       if (response.ok || data.token) {
-        Alert.alert('Login Success', 'You have successfully logged in!');
-  
+        Alert.alert("Login Success", "You have successfully logged in!");
+
         // Save token in AsyncStorage
         onLoginSuccess(data.token);
-        await AsyncStorage.setItem('id', String(data.hospital?.hid));
+        await AsyncStorage.setItem("id", String(data.hospital?.hid));
+        await AsyncStorage.setItem("pincode", String(data.hospital?.pincode));
 
-        console.log('Hospital ID:', data.hospital?.hid);
-        navigation.navigate('Main');
+        console.log("Hospital ID:", data.hospital?.hid);
+        navigation.navigate("Main");
       } else {
-        Alert.alert('Login Failed', data.message || 'Something went wrong');
+        Alert.alert("Login Failed", data.message || "Something went wrong");
       }
     } catch (error) {
-      console.error('Login error:', error);
-      Alert.alert('Error', 'Failed to login. Please try again.');
+      console.error("Login error:", error);
+      Alert.alert("Error", "Failed to login. Please try again.");
     }
   };
 
@@ -73,7 +77,7 @@ export const LoginScreen = ({ onLoginSuccess }) => {
         style={styles.input}
         right={
           <TextInput.Icon
-            icon={passwordVisible ? 'eye-off' : 'eye'}
+            icon={passwordVisible ? "eye-off" : "eye"}
             onPress={() => setPasswordVisible(!passwordVisible)}
           />
         }
@@ -85,7 +89,7 @@ export const LoginScreen = ({ onLoginSuccess }) => {
 
       <View style={styles.footer}>
         <Text>Don't have an account?</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+        <TouchableOpacity onPress={() => navigation.navigate("Register")}>
           <Text style={styles.registerLink}> Register here</Text>
         </TouchableOpacity>
       </View>
@@ -96,35 +100,35 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    justifyContent: 'center',
-    backgroundColor: '#ffffff',
+    justifyContent: "center",
+    backgroundColor: "#ffffff",
   },
   title: {
     fontSize: 26,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 32,
-    textAlign: 'center',
+    textAlign: "center",
   },
   input: {
     marginBottom: 20,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   loginButton: {
-    backgroundColor: '#0ba9bb',
+    backgroundColor: "#0ba9bb",
     padding: 12,
     borderRadius: 25,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
   loginText: {
-    color: '#ffffff',
-    fontWeight: '600',
+    color: "#ffffff",
+    fontWeight: "600",
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
   },
   registerLink: {
-    color: '#0ba9bb',
+    color: "#0ba9bb",
   },
 });

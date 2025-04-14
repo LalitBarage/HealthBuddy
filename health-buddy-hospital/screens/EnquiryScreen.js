@@ -18,10 +18,11 @@ import {
   Dialog,
   Portal,
   Menu,
-  ActivityIndicator
+  ActivityIndicator,
+  DataTable
 } from 'react-native-paper';
-import { useHospital } from '../HospitalContext';
-import {API_URL} from '@env'; // Make sure this is defined in your .env file
+
+import {API_URL} from '@env'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const theme = {
@@ -40,12 +41,8 @@ const theme = {
 export const EnquiryScreen = () => {
  
   const [enquiry, setEnquiry] = useState({
-    name: '',
-    phone: '',
-    dob: '',
     pid:'',
     hid: '',
-    gender: '',
     diseases: '',
     pincode:'',
   });
@@ -62,11 +59,14 @@ export const EnquiryScreen = () => {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
   
+  
 
  
   // Add this state at the top
 const [generatedOtp, setGeneratedOtp] = useState('');
 const [enteredOtp, setEnteredOtp] = useState('');
+const [deletePendingId, setDeletePendingId] = useState(null);
+
 
 
 
@@ -90,8 +90,19 @@ const [filterAnchor, setFilterAnchor] = useState(null);
     const fetchEnquiries = async () => {
       try {
         const id = await AsyncStorage.getItem('id');
-        const response = await fetch(`${API_URL}/api/enquiry/getAllEnquiries`);
+         // Check if the ID is being fetched correctly
+         const token = await AsyncStorage.getItem('userToken');
+        console.log(API_URL);
+        const response = await fetch(`${API_URL}/api/enquiry/getAllEnquiries/${id}`,{
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+      });
+        
         const data = await response.json();
+         // Log the fetched data for debugging
   
         
         const formatted = data.map((item) => ({
@@ -120,21 +131,24 @@ const [filterAnchor, setFilterAnchor] = useState(null);
     setCurrentPage(1);
   }, [search, filter]);
   
+  const openEditModal = (item) => {
+    console.log("Edit enquiry:", enquiry);
+
+    setEnquiry(item); // `item` should contain pid, hid, etc.
+    setEditModalVisible(true);
+  };
   
 
   const handleChange = (field, value) => {
-    setEnquiry({ ...enquiry, [field]: value });
-    if (field === 'phone' && value.length > 0 && !/^\d{10}$/.test(value)) {
-      setErrors((prev) => ({ ...prev, phone: 'Phone must be 10 digits' }));
-    } else if (field === 'phone') {
-      setErrors((prev) => ({ ...prev, phone: '' }));
-    }
+    setEnquiry((prev) => ({ ...prev, [field]: value }));
   };
+  
 
   const handleSubmit = async () => {
     console.log("clicked");
     setLoading(true);
     const id = await AsyncStorage.getItem('id');
+    const token = await AsyncStorage.getItem('userToken');
     
   
     const newEntry = {
@@ -151,6 +165,7 @@ const [filterAnchor, setFilterAnchor] = useState(null);
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(newEntry),
       });
@@ -177,57 +192,86 @@ const [filterAnchor, setFilterAnchor] = useState(null);
   };
   
 
-  const handleDateChange = (_, selectedDate) => {
-    setDobPickerVisible(false);
-    if (selectedDate) {
-      const dateStr = selectedDate.toISOString().split('T')[0];
-      handleChange('dob', dateStr);
-    }
-  };
-
   const applyFilter = (entries) => {
     const now = new Date();
     let filtered = entries;
-
+  
     if (filter === '10days') {
       filtered = filtered.filter((e) => now - new Date(e.createdAt) <= 10 * 86400000);
     } else if (filter === '3months') {
       filtered = filtered.filter((e) => now - new Date(e.createdAt) <= 90 * 86400000);
     }
-
+  
     if (search) {
       filtered = filtered.filter((e) =>
         e.pid.toString().toLowerCase().includes(search.toLowerCase())
       );
-    }    
+    }
+  
     return filtered;
   };
+  
 
   const filteredEnquiries = applyFilter(enquiries);
 
 
   const totalPages = Math.ceil(filteredEnquiries.length / itemsPerPage);
-  const paginatedEnquiries = filteredEnquiries.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+const paginatedEnquiries = filteredEnquiries.slice(
+  (currentPage - 1) * itemsPerPage,
+  currentPage * itemsPerPage
+);
+
 
   const handleEdit = (enquiry) => {
     setSelectedEnquiry(enquiry);
-  
-    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
-    console.log('Generated OTP:', otp); // In real app, send this via SMS or email
-  
-    setGeneratedOtp(otp); // store the generated OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedOtp(otp);
+    console.log('Generated OTP:', otp);
     setOtpModalVisible(true);
   };
   
 
-  const handleOtpSubmit = () => {
+  const handleOtpSubmit = async () => {
     if (enteredOtp === generatedOtp) {
       setOtpModalVisible(false);
-      setEditModalVisible(true);
       setEnteredOtp('');
+  
+      // Handle DELETE
+      if (deletePendingId) {
+        try {
+          const response = await fetch(`${API_URL}/api/enquiry/deleteEnquiry/${deletePendingId}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${await AsyncStorage.getItem('userToken')}`,
+            }
+          });
+  
+          if (!response.ok) {
+            throw new Error('Failed to delete enquiry.');
+          }
+  
+          setEnquiries((prev) => prev.filter((e) => e.id !== deletePendingId));
+          Alert.alert('Deleted', 'Enquiry deleted successfully.');
+        } catch (err) {
+          Alert.alert('Error', err.message);
+        } finally {
+          setDeletePendingId(null); // clear after use
+        }
+        return;
+      }
+  
+      // Handle EDIT
+      if (selectedEnquiry) {
+        setEnquiry({
+          pid: selectedEnquiry.pid?.toString() || '',
+          hid: selectedEnquiry.hid?.toString() || '',
+          diseases: selectedEnquiry.diseases || '',
+          pincode: selectedEnquiry.pincode || '',
+        });
+  
+        setTimeout(() => setEditModalVisible(true), 100);
+      }
     } else {
       Alert.alert('Invalid OTP');
       setEnteredOtp('');
@@ -235,17 +279,59 @@ const [filterAnchor, setFilterAnchor] = useState(null);
   };
   
 
-  const handleEditSubmit = () => {
-    setEnquiries((prev) =>
-      prev.map((e) => (e.id === selectedEnquiry.id ? selectedEnquiry : e))
-    );
-    setEditModalVisible(false);
-    Alert.alert('Updated');
-  };
-
   const handleDelete = (id) => {
-    setEnquiries((prev) => prev.filter((e) => e.id !== id));
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedOtp(otp);
+    setDeletePendingId(id);  // store id
+    console.log('Generated OTP for delete:', otp);
+    setOtpModalVisible(true);
   };
+  
+  
+  
+
+  const handleEditSubmit = async () => {
+    try {
+      const updatedEnquiry = {
+        pid: enquiry.pid,
+        hid: enquiry.hid,
+        diseases: enquiry.diseases,
+        pincode: enquiry.pincode,
+      };
+  
+      const response = await fetch(`${API_URL}/api/enquiry/updateEnquiry/${selectedEnquiry.id}`, {
+        method: 'PUT', 
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${await AsyncStorage.getItem('userToken')}`,
+        },
+        body: JSON.stringify(updatedEnquiry),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to update enquiry.');
+      }
+  
+      // Update local state
+      setEnquiries((prev) =>
+        prev.map((e) => (e.id === selectedEnquiry.id ? { ...e, ...updatedEnquiry } : e))
+      );
+  
+      Alert.alert('Success', 'Enquiry updated successfully.');
+      setEnquiry({
+        pid: '',
+        hid: '',
+        diseases: '',
+        pincode: '',
+      });
+      setSelectedEnquiry(null);
+   
+      setEditModalVisible(false);
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
+  };
+  
 
   return (
     <PaperProvider theme={theme}>
@@ -263,6 +349,7 @@ const [filterAnchor, setFilterAnchor] = useState(null);
           mode="outlined"
           keyboardType="phone-pad"
           value={enquiry.hid}
+          editable={false}
           onChangeText={(val) => handleChange('hid', val)}
           style={styles.input}
         />
@@ -271,7 +358,7 @@ const [filterAnchor, setFilterAnchor] = useState(null);
           label="Disease"
           mode="outlined"
           multiline
-          value={enquiry.disease}
+          value={enquiry.diseases}
           onChangeText={(val) => handleChange('diseases', val)}
           style={styles.input}
         />
@@ -362,25 +449,56 @@ const [filterAnchor, setFilterAnchor] = useState(null);
           style={styles.input}
         />
 
-<FlatList
-  data={paginatedEnquiries}
-  scrollEnabled={false}
-  keyExtractor={(item) => item.id}
-  contentContainerStyle={{ paddingBottom: 100 }}
-  renderItem={({ item }) => (
-    <View style={styles.enquiryItem}>
-      <Text>
-        PID: {item.pid} | Disease: {item.diseases}{"\n"}
-        Pincode: {item.pincode}, {item.sub_dist}, {item.dist}, {item.state}{"\n"}
-        Date: {new Date(item.createdAt).toLocaleDateString()}
-      </Text>
-      <View style={styles.enquiryActions}>
-        <Button onPress={() => handleEdit(item)}>Edit</Button>
-        <Button onPress={() => handleDelete(item.id)}>Delete</Button>
-      </View>
-    </View>
-  )}
-/>
+<ScrollView horizontal>
+  <View style={styles.tableWrapper}>
+  <DataTable style={styles.table}>
+  <DataTable.Header style={styles.header}>
+    <DataTable.Title style={styles.colSmall}>EID</DataTable.Title>
+    <DataTable.Title style={styles.colSmall}>PID</DataTable.Title>
+    <DataTable.Title style={styles.colLarge}>Disease</DataTable.Title>
+    <DataTable.Title style={styles.colPin}>Pincode</DataTable.Title>
+    <DataTable.Title style={styles.colMedium}>Sub-Dist</DataTable.Title>
+    <DataTable.Title style={styles.colMedium}>District</DataTable.Title>
+    <DataTable.Title style={styles.colMedium}>State</DataTable.Title>
+    <DataTable.Title style={styles.colMedium}>Date</DataTable.Title>
+    <DataTable.Title style={styles.colActions}>Actions</DataTable.Title>
+  </DataTable.Header>
+
+  {paginatedEnquiries.map((item) => (
+    <DataTable.Row key={item.id} style={styles.row}>
+      <DataTable.Cell style={styles.colSmall}>{item.id}</DataTable.Cell>
+      <DataTable.Cell style={styles.colSmall}>{item.pid}</DataTable.Cell>
+      <DataTable.Cell style={styles.colLarge}>{item.diseases}</DataTable.Cell>
+      <DataTable.Cell style={styles.colPin}>{item.pincode}</DataTable.Cell>
+      <DataTable.Cell style={styles.colMedium}>{item.sub_dist}</DataTable.Cell>
+      <DataTable.Cell style={styles.colMedium}>{item.dist}</DataTable.Cell>
+      <DataTable.Cell style={styles.colMedium}>{item.state}</DataTable.Cell>
+      <DataTable.Cell style={styles.colMedium}>
+        {new Date(item.createdAt).toLocaleDateString()}
+      </DataTable.Cell>
+      <DataTable.Cell style={styles.colActions}>
+        <Button
+          onPress={() => handleEdit(item)}
+          compact
+          mode="text"
+          icon="pencil"
+          textColor="#007aff"
+        />
+        <Button
+          onPress={() => handleDelete(item.id)}
+          compact
+          mode="text"
+          icon="delete"
+          textColor="red"
+        />
+      </DataTable.Cell>
+    </DataTable.Row>
+  ))}
+</DataTable>
+</View>
+</ScrollView>
+
+
 
 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 2 }}>
   <Button
@@ -439,50 +557,39 @@ const [filterAnchor, setFilterAnchor] = useState(null);
           <ScrollView style={styles.container}>
             <Text style={styles.title}>Edit Enquiry</Text>
             <TextInput
-              label="Name"
-              mode="outlined"
-              value={selectedEnquiry?.name || ''}
-              onChangeText={(val) =>
-                setSelectedEnquiry((prev) => ({ ...prev, name: val }))
-              }
-              style={styles.input}
-            />
-            <TextInput
-              label="Phone"
-              mode="outlined"
-              value={selectedEnquiry?.phone || ''}
-              onChangeText={(val) =>
-                setSelectedEnquiry((prev) => ({ ...prev, phone: val }))
-              }
-              style={styles.input}
-            />
-            <TextInput
-              label="DOB"
-              mode="outlined"
-              value={selectedEnquiry?.dob || ''}
-              onChangeText={(val) =>
-                setSelectedEnquiry((prev) => ({ ...prev, dob: val }))
-              }
-              style={styles.input}
-            />
-            <TextInput
-              label="Gender"
-              mode="outlined"
-              value={selectedEnquiry?.gender || ''}
-              onChangeText={(val) =>
-                setSelectedEnquiry((prev) => ({ ...prev, gender: val }))
-              }
-              style={styles.input}
-            />
-            <TextInput
-              label="Symptoms"
-              mode="outlined"
-              value={selectedEnquiry?.symptoms || ''}
-              onChangeText={(val) =>
-                setSelectedEnquiry((prev) => ({ ...prev, symptoms: val }))
-              }
-              style={styles.input}
-            />
+  label="Patient ID"
+  mode="outlined"
+  value={enquiry.pid}
+  onChangeText={(val) => handleChange('pid', val)}
+  style={styles.input}
+/>
+
+<TextInput
+  label="Hospital ID"
+  mode="outlined"
+  value={enquiry.hid}
+  onChangeText={(val) => handleChange('hid', val)}
+  style={styles.input}
+/>
+
+<TextInput
+  label="Disease"
+  mode="outlined"
+  multiline
+  value={enquiry.diseases}
+  onChangeText={(val) => handleChange('diseases', val)}
+  style={styles.input}
+/>
+
+<TextInput
+  label="Pincode"
+  mode="outlined"
+  keyboardType="phone-pad"
+  value={enquiry.pincode}
+  onChangeText={(val) => handleChange('pincode', val)}
+  style={styles.input}
+/>
+
             <Button onPress={handleEditSubmit} style={styles.submitButton}>Save Changes</Button>
             <Button onPress={() => setEditModalVisible(false)}>Cancel</Button>
           </ScrollView>
@@ -492,7 +599,7 @@ const [filterAnchor, setFilterAnchor] = useState(null);
   );
 };
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: { padding: 20, backgroundColor: '#f9fafd', flexGrow: 1 },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 16, textAlign: 'center' },
   subtitle: { fontSize: 20, fontWeight: 'bold', marginVertical: 16 },
@@ -512,6 +619,50 @@ const styles = StyleSheet.create({
   },
   dropdownButton: {
     backgroundColor: 'white',
+  },
+  tableWrapper: {
+    marginHorizontal:2,
+    marginBottom: 20,
+  },
+  table: {
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    backgroundColor: '#fff',
+    minWidth: 1000,
+  },
+  header: {
+    backgroundColor: '#f9fafd',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  row: {
+    backgroundColor: '#fff',
+    borderBottomColor: '#eee',
+    borderBottomWidth: 1,
+  },
+
+  // Use fixed widths for consistent alignment
+  colXSmall: {
+    width: 60,
+  },
+  colSmall: {
+    width: 60,
+  },
+  colMedium: {
+    width: 120,
+  },
+  colLarge: {
+    width: 120,
+  },
+  colPin: {
+      width:80,
+  },
+  colActions: {
+    width: 100,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   
 });

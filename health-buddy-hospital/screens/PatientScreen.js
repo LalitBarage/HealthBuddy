@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { TextInput, Button, Text, Provider, ActivityIndicator } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { API_URL} from '@env';
+import {API_URL} from '@env'
 import axios from "axios"
 
 export const PatientScreen = () => {
@@ -43,6 +43,9 @@ export const PatientScreen = () => {
       }
     }
   };
+  useEffect(() => {
+    console.log(API_URL);
+  }, []);
 
   const handleDateChange = (_, selectedDate) => {
     setDobPickerVisible(false);

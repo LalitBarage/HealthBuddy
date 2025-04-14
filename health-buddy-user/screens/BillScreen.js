@@ -1,99 +1,263 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  FlatList,
-  TouchableOpacity,
   StyleSheet,
-} from 'react-native';
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  Alert,
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_URL } from "@env";
 
-const BillScreen = () => {
-  // Sample bill data — replace with real data or fetch from API
-  const bills = [
-    { id: '1', title: 'Consultation Bill - Jan', amount: '₹500' },
-    { id: '2', title: 'X-Ray Services - Feb', amount: '₹1200' },
-    { id: '3', title: 'Lab Test - Mar', amount: '₹800' },
-  ];
+const ProfileScreen = () => {
+  const [profile, setProfile] = useState(null);
+  const [otpModalVisible, setOtpModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [passwordModalVisible, setPasswordModalVisible] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [serverOtp, setServerOtp] = useState("");
+  const [otpTarget, setOtpTarget] = useState(""); // 'edit' or 'password'
+  const [newPassword, setNewPassword] = useState("");
 
-  const handleView = (bill) => {
-    // Add logic to view bill details or navigate to detail screen
-    console.log('View bill:', bill);
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const id = await AsyncStorage.getItem("id");
+      const token = await AsyncStorage.getItem("userToken");
+      const adhar = await AsyncStorage.getItem("adhar");
+      console.log(adhar);
+
+      const res = await fetch(`${API_URL}/api/auth/userProfile/${adhar}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      setProfile(data);
+    };
+
+    fetchProfile();
+  }, []);
+
+  const generateOtp = () => {
+    const generated = Math.floor(100000 + Math.random() * 900000).toString();
+    setServerOtp(generated);
+    console.log("OTP:", generated); // In real scenario, send to user
+    setOtp("");
+    setOtpModalVisible(true);
   };
 
-  const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.billTitle}>{item.title}</Text>
-        <Text style={styles.billAmount}>{item.amount}</Text>
-      </View>
-      <TouchableOpacity
-        style={styles.viewButton}
-        onPress={() => handleView(item)}
-      >
-        <Text style={styles.viewButtonText}>View</Text>
-      </TouchableOpacity>
-    </View>
-  );
+  const handleOtpSubmit = () => {
+    if (otp === serverOtp) {
+      setOtpModalVisible(false);
+      if (otpTarget === "edit") {
+        setEditModalVisible(true);
+      } else {
+        setPasswordModalVisible(true);
+      }
+    } else {
+      Alert.alert("Invalid OTP");
+      setPasswordModalVisible(false);
+    }
+  };
+
+  const handlePasswordUpdate = async () => {
+    const payload = {
+      newPassword: newPassword,
+    };
+
+    try {
+      const adhar = await AsyncStorage.getItem("adhar");
+      const token = await AsyncStorage.getItem("userToken");
+      console.log(adhar);
+      const response = await fetch(
+        `${API_URL}/api/auth/changePassword/${adhar}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await response.json();
+      console.log(data);
+
+      if (response.ok) {
+        Alert.alert(
+          "Password Changed",
+          "You have successfully changed your password"
+        );
+        setPasswordModalVisible(false);
+      } else {
+        console.error("Change password failed:", data);
+        Alert.alert(
+          "Error",
+          data.message || "Failed to change password. Please try again."
+        );
+      }
+    } catch (error) {
+      console.error("Password change error:", error);
+      Alert.alert("Error", "Failed to change password. Please try again.");
+      setPasswordModalVisible(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
-    <Text style={styles.title}>Your Bills</Text>
-    <FlatList
-      data={bills}
-      keyExtractor={(item) => item.id}
-      renderItem={renderItem}
-      contentContainerStyle={{ paddingBottom: 20, marginTop: 20 }} // 👈 Add marginTop here
-    />
-  </View>  
+      <Text style={styles.title}>Profile</Text>
+      {profile && (
+        <View style={styles.card}>
+          <Text style={styles.label}>
+            Name: {profile.pname_firstname} {profile.pname_lastname}
+          </Text>
+          <Text style={styles.label}>
+            Aadhar: {profile.paddhar?.replace(/\d(?=\d{4})/g, "X")}
+          </Text>
+
+          <Text style={styles.label}>Mobile: {profile.pmobileno}</Text>
+          <Text style={styles.label}>DOB: {profile.dob}</Text>
+          <Text style={styles.label}>Gender: {profile.gender}</Text>
+          <Text style={styles.label}>Pincode: {profile.pincode}</Text>
+          <Text style={styles.label}>
+            Location: {profile.sub_dist}, {profile.dist}, {profile.state}
+          </Text>
+        </View>
+      )}
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => {
+          setOtpTarget("password");
+          generateOtp();
+        }}
+      >
+        <Text style={styles.buttonText}>Change Password</Text>
+      </TouchableOpacity>
+
+      {/* OTP Modal */}
+      <Modal visible={otpModalVisible} transparent>
+        <View style={styles.modalContainer}>
+          <View style={styles.modal}>
+            <Text style={styles.modalTitle}>Enter OTP</Text>
+            <TextInput
+              placeholder="Enter OTP"
+              value={otp}
+              onChangeText={setOtp}
+              keyboardType="numeric"
+              style={styles.input}
+            />
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={handleOtpSubmit}
+            >
+              <Text style={styles.modalButtonText}>Verify OTP</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Edit Profile Modal */}
+
+      {/* Change Password Modal */}
+      <Modal visible={passwordModalVisible} transparent>
+        <View style={styles.modalContainer}>
+          <View style={styles.modal}>
+            <Text style={styles.modalTitle}>New Password</Text>
+            <TextInput
+              placeholder="Enter New Password"
+              secureTextEntry
+              value={newPassword}
+              onChangeText={setNewPassword}
+              style={styles.input}
+            />
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={handlePasswordUpdate}
+            >
+              <Text style={styles.modalButtonText}>Update Password</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 };
 
-export default BillScreen;
+export default ProfileScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0faff',
     padding: 16,
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 24,
-    color: '#0ba9bb',
-    fontWeight: 'bold',
-    textAlign: 'center',
+    textAlign: "center",
+    color: "#0ba9bb",
     marginBottom: 20,
+    fontWeight: "bold",
   },
   card: {
-    flexDirection: 'row',
-    backgroundColor: '#ffffff',
+    backgroundColor: "#f0faff",
     borderRadius: 12,
     padding: 16,
-    marginBottom: 12,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
+    marginBottom: 20,
   },
-  billTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-  },
-  billAmount: {
-    color: '#0ba9bb',
-    fontWeight: '500',
-  },
-  viewButton: {
-    backgroundColor: '#0ba9bb',
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-  },
-  viewButtonText: {
-    color: 'white',
-    fontWeight: '600',
+  label: {
     fontSize: 14,
+    marginBottom: 6,
+    color: "#444",
+  },
+  button: {
+    backgroundColor: "#0ba9bb",
+    padding: 12,
+    borderRadius: 10,
+    marginVertical: 8,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "600",
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "#000000aa",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modal: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 20,
+    width: "80%",
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 12,
+    color: "#0ba9bb",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    marginBottom: 12,
+    borderRadius: 8,
+  },
+  modalButton: {
+    backgroundColor: "#0ba9bb",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
   },
 });
