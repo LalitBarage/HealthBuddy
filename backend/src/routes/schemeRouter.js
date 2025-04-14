@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.post("/applyScheme", appliedScheme);
 router.put("/updateAppliedScheme/:apscid", updateAppliedScheme);
-router.get("/getAppliedScheme", getAppliedScheme);
+router.get("/getAppliedSchemePid/:pid", getAppliedScheme);
 router.delete("/deleteAppliedScheme/:apscid", deleteAppliedScheme);
 
 module.exports = router;

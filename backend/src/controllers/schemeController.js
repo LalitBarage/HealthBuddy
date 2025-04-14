@@ -79,7 +79,7 @@ const appliedScheme = async (req, res) => {
 };
 
 const getAppliedScheme = async (req, res) => {
-  const { pid } = req.body;
+  const { pid } = req.params;
 
   if (!pid) {
     return res.status(400).json({ message: "PID is required" });
