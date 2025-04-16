@@ -28,11 +28,14 @@ const ProfileScreen = () => {
       const adhar = await AsyncStorage.getItem("adhar");
       console.log(adhar);
 
-      const res = await fetch(`${API_URL}/api/auth/userProfile/${adhar}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `http://192.168.63.106:3000/api/auth/userProfile/${adhar}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const data = await res.json();
       setProfile(data);
     };
@@ -72,7 +75,7 @@ const ProfileScreen = () => {
       const token = await AsyncStorage.getItem("userToken");
       console.log(adhar);
       const response = await fetch(
-        `${API_URL}/api/auth/changePassword/${adhar}`,
+        `http://192.168.63.106:3000/api/auth/changePassword/${adhar}`,
         {
           method: "PUT",
           headers: {

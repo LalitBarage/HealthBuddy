@@ -3,14 +3,14 @@ import { FaEye } from "react-icons/fa";
 
 const HospitalRequest = () => {
   const [requests, setRequests] = useState([
-    { id: 1, name: "Patient A", status: "Pending" },
-    { id: 2, name: "Patient B", status: "Pending" },
+    { id: 1, name: "Apple Hospital", status: "Pending" },
+    { id: 2, name: "Vimal Hospital", status: "Pending" },
   ]);
 
   const [showHistory, setShowHistory] = useState(false);
   const [history] = useState([
-    { id: 101, name: "Patient X", status: "Accepted" },
-    { id: 102, name: "Patient Y", status: "Rejected" },
+    { id: 101, name: "Sahyadri Hospital", status: "Accepted" },
+    { id: 102, name: "City Hospital", status: "Rejected" },
   ]);
 
   const handleStatusChange = (id, newStatus) => {
@@ -38,7 +38,7 @@ const HospitalRequest = () => {
     <div className="p-6 bg-white min-h-screen text-black">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-black">Pending Requests</h2>
+        <h2 className="text-3xl font-bold text-[#0990a5]">Pending Requests</h2>
         <button
           className="bg-[#0ba9bb] text-white px-5 py-2 rounded-lg font-semibold hover:bg-[#0990a5] transition"
           onClick={() => setShowHistory((prev) => !prev)}

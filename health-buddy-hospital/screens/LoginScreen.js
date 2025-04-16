@@ -23,7 +23,7 @@ export const LoginScreen = ({ onLoginSuccess }) => {
 
     try {
       const response = await fetch(
-        "http://192.168.184.106:3000/api/auth/loginHospital",
+        "http://192.168.63.106:3000/api/auth/loginHospital",
         {
           method: "POST",
           headers: {
@@ -39,7 +39,6 @@ export const LoginScreen = ({ onLoginSuccess }) => {
       if (response.ok || data.token) {
         Alert.alert("Login Success", "You have successfully logged in!");
 
-        // Save token in AsyncStorage
         onLoginSuccess(data.token);
         await AsyncStorage.setItem("id", String(data.hospital?.hid));
         await AsyncStorage.setItem("pincode", String(data.hospital?.pincode));

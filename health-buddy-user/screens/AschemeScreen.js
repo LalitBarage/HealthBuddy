@@ -26,7 +26,7 @@ export const AschemeScreen = () => {
         const token = await AsyncStorage.getItem("userToken");
 
         const response = await fetch(
-          `${API_URL}/api/scheme/getAppliedSchemePid/${id}`,
+          `http://192.168.63.106:3000/api/scheme/getAppliedSchemePid/${id}`,
           {
             method: "GET",
             headers: {

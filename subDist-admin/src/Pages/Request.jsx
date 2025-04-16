@@ -1,16 +1,83 @@
 import React, { useState } from "react";
 import { FaEye } from "react-icons/fa";
 
+// Reusable Component for Document Buttons
+const DocumentButtons = ({ documents }) => {
+  const docLabels = {
+    incomeTax: "Income Tax",
+    electricityBill: "Electricity Bill",
+    casteCertificate: "Caste Certificate",
+    bankPassbook: "Bank Passbook",
+  };
+
+  return (
+    <div className="flex flex-wrap gap-2 mt-3">
+      {Object.entries(documents).map(([key, url]) => (
+        <a
+          key={key}
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-white border border-white px-3 py-1 rounded-md hover:bg-white hover:text-[#0ba9bb] transition text-sm"
+        >
+          <FaEye size={14} />
+          {docLabels[key]}
+        </a>
+      ))}
+    </div>
+  );
+};
+
 const Request = () => {
   const [requests, setRequests] = useState([
-    { id: 1, name: "Patient A", status: "Pending" },
-    { id: 2, name: "Patient B", status: "Pending" },
+    {
+      id: 1,
+      name: "Lalit Barage",
+      status: "Pending",
+      documents: {
+        incomeTax: "#",
+        electricityBill: "#",
+        casteCertificate: "#",
+        bankPassbook: "#",
+      },
+    },
+    {
+      id: 2,
+      name: "Saurabh Shelake",
+      status: "Pending",
+      documents: {
+        incomeTax: "#",
+        electricityBill: "#",
+        casteCertificate: "#",
+        bankPassbook: "#",
+      },
+    },
   ]);
 
   const [showHistory, setShowHistory] = useState(false);
   const [history] = useState([
-    { id: 101, name: "Patient X", status: "Accepted" },
-    { id: 102, name: "Patient Y", status: "Rejected" },
+    {
+      id: 101,
+      name: "Atharva Bhuwad",
+      status: "Accepted",
+      documents: {
+        incomeTax: "#",
+        electricityBill: "#",
+        casteCertificate: "#",
+        bankPassbook: "#",
+      },
+    },
+    {
+      id: 102,
+      name: "Aman Naikwadi",
+      status: "Rejected",
+      documents: {
+        incomeTax: "#",
+        electricityBill: "#",
+        casteCertificate: "#",
+        bankPassbook: "#",
+      },
+    },
   ]);
 
   const handleStatusChange = (id, newStatus) => {
@@ -38,7 +105,7 @@ const Request = () => {
     <div className="p-6 bg-white min-h-screen text-black">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-black">Pending Requests</h2>
+        <h2 className="text-3xl font-bold text-[#0990a5]">Pending Requests</h2>
         <button
           className="bg-[#0ba9bb] text-white px-5 py-2 rounded-lg font-semibold hover:bg-[#0990a5] transition"
           onClick={() => setShowHistory((prev) => !prev)}
@@ -52,30 +119,22 @@ const Request = () => {
         {requests.map((req) => (
           <div
             key={req.id}
-            className="flex justify-between bg-[#0ba9bb] items-center rounded-xl shadow-md px-5 py-4 hover:shadow-lg transition"
+            className="bg-[#0ba9bb] rounded-xl shadow-md px-5 py-4 hover:shadow-lg transition"
           >
-            <div>
-              <h4 className="text-xl font-semibold text-white">{req.name}</h4>
-              <div className="flex items-center space-x-3 mt-2">
-                <label className="text-white text-sm">Status:</label>
-                <select
-                  className="rounded px-3 py-1 text-sm focus:outline-none bg-amber-50"
-                  value={req.status}
-                  onChange={(e) => handleStatusChange(req.id, e.target.value)}
-                >
-                  <option value="Pending">Pending</option>
-                  <option value="Accepted">Accepted</option>
-                  <option value="Rejected">Rejected</option>
-                </select>
-              </div>
+            <h4 className="text-xl font-semibold text-white">{req.name}</h4>
+            <div className="flex items-center space-x-3 mt-2">
+              <label className="text-white text-sm">Status:</label>
+              <select
+                className="rounded px-3 py-1 text-sm focus:outline-none bg-amber-50"
+                value={req.status}
+                onChange={(e) => handleStatusChange(req.id, e.target.value)}
+              >
+                <option value="Pending">Pending</option>
+                <option value="Accepted">Accepted</option>
+                <option value="Rejected">Rejected</option>
+              </select>
             </div>
-            <button
-              className="flex items-center gap-2 text-white border border-white px-4 py-2 rounded-md hover:text-white transition"
-              title="View Details"
-            >
-              <FaEye size={16} />
-              View
-            </button>
+            <DocumentButtons documents={req.documents} />
           </div>
         ))}
       </div>
@@ -90,19 +149,11 @@ const Request = () => {
             {history.map((h) => (
               <div
                 key={h.id}
-                className="flex justify-between items-center bg-[#7dc6ce] rounded-xl shadow-md px-5 py-4 hover:shadow-lg transition"
+                className="bg-[#7dc6ce] rounded-xl shadow-md px-5 py-4 hover:shadow-lg transition"
               >
-                <div>
-                  <h4 className="text-xl font-semibold text-white">{h.name}</h4>
-                  <div className="mt-1">{getStatusBadge(h.status)}</div>
-                </div>
-                <button
-                  className="flex items-center gap-2 text-white border border-white px-4 py-2 rounded-md hover:bg-[white] hover:text-white transition"
-                  title="View History"
-                >
-                  <FaEye size={16} />
-                  View
-                </button>
+                <h4 className="text-xl font-semibold text-white">{h.name}</h4>
+                <div className="mt-1">{getStatusBadge(h.status)}</div>
+                <DocumentButtons documents={h.documents} />
               </div>
             ))}
           </div>

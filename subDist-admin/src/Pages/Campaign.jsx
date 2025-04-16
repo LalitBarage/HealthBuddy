@@ -138,6 +138,7 @@ const Campaign = () => {
                 type="submit"
                 className="py-2 px-4 rounded text-white"
                 style={{ backgroundColor: "#0990A5" }}
+                onClick={() => setShowPopup(false)}
               >
                 Save Campaign
               </button>

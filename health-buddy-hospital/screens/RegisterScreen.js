@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,27 +6,25 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
-} from 'react-native';
-import * as DocumentPicker from 'expo-document-picker';
-import { TextInput } from 'react-native-paper';
-import { API_URL, CLOUDINARY_URL, UPLOAD_PRESET } from '@env';
-
+} from "react-native";
+import * as DocumentPicker from "expo-document-picker";
+import { TextInput } from "react-native-paper";
+import { API_URL, CLOUDINARY_URL, UPLOAD_PRESET } from "@env";
 
 export const RegisterScreen = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [hospitalName, setHospitalName] = useState('');
-  const [mobileNo, setMobileNo] = useState('');
-  const [documentUrl, setDocumentUrl] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [hospitalName, setHospitalName] = useState("");
+  const [mobileNo, setMobileNo] = useState("");
+  const [documentUrl, setDocumentUrl] = useState("");
   const [document, setDocument] = useState(null);
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [pincode, setPincode] = useState('');
-
+  const [pincode, setPincode] = useState("");
 
   const pickDocument = async () => {
     try {
       const res = await DocumentPicker.getDocumentAsync({
-        type: 'application/pdf',
+        type: "application/pdf",
         copyToCacheDirectory: true,
       });
 
@@ -34,16 +32,16 @@ export const RegisterScreen = ({ navigation }) => {
 
       const file = {
         uri: res.assets[0].uri,
-        type: 'application/pdf',
-        name: res.assets[0].name || 'document.pdf',
+        type: "application/pdf",
+        name: res.assets[0].name || "document.pdf",
       };
 
       const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset',UPLOAD_PRESET);
+      formData.append("file", file);
+      formData.append("upload_preset", UPLOAD_PRESET);
 
       const response = await fetch(CLOUDINARY_URL, {
-        method: 'POST',
+        method: "POST",
         body: formData,
       });
 
@@ -52,13 +50,13 @@ export const RegisterScreen = ({ navigation }) => {
       if (data.secure_url) {
         setDocument(file);
         setDocumentUrl(data.secure_url);
-        Alert.alert('Upload Success!', `URL: ${data.secure_url}`);
+        Alert.alert("Upload Success!", `URL: ${data.secure_url}`);
       } else {
-        Alert.alert('Upload failed', JSON.stringify(data));
+        Alert.alert("Upload failed", JSON.stringify(data));
       }
     } catch (err) {
-      console.error('Upload error:', err);
-      Alert.alert('Error', err.message);
+      console.error("Upload error:", err);
+      Alert.alert("Error", err.message);
     }
   };
 
@@ -67,22 +65,28 @@ export const RegisterScreen = ({ navigation }) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     // Mobile number: allows 10 digits only
     const phoneRegex = /^[0-9]{10}$/;
-  
+
     if (!email || !emailRegex.test(email)) {
-      Alert.alert('Invalid Email', 'Please enter a valid email address.');
+      Alert.alert("Invalid Email", "Please enter a valid email address.");
       return;
     }
-  
+
     if (!mobileNo || !phoneRegex.test(mobileNo)) {
-      Alert.alert('Invalid Phone Number', 'Please enter a valid 10-digit phone number.');
+      Alert.alert(
+        "Invalid Phone Number",
+        "Please enter a valid 10-digit phone number."
+      );
       return;
     }
-  
+
     if (!documentUrl) {
-      Alert.alert('Missing Document', 'Please upload the required document before registering.');
+      Alert.alert(
+        "Missing Document",
+        "Please upload the required document before registering."
+      );
       return;
     }
-  
+
     const payload = {
       email,
       password,
@@ -91,30 +95,35 @@ export const RegisterScreen = ({ navigation }) => {
       pincode,
       documentUrl,
     };
-  
+
     try {
-      const response = await fetch(`${API_URL}/api/auth/registerHospital`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-  
+      const response = await fetch(
+        `http://192.168.63.106:3000/api/auth/registerHospital`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
       const result = await response.json();
-  
+
       if (response.ok) {
-        Alert.alert('Success', 'Registered successfully!');
-        navigation.navigate('Login');
+        Alert.alert("Success", "Registered successfully!");
+        navigation.navigate("Login");
       } else {
-        Alert.alert('Registration Failed', result.message || 'Something went wrong');
+        Alert.alert(
+          "Registration Failed",
+          result.message || "Something went wrong"
+        );
       }
     } catch (error) {
-      console.error('Registration error:', error);
-      Alert.alert('Error', 'Failed to register. Please try again.');
+      console.error("Registration error:", error);
+      Alert.alert("Error", "Failed to register. Please try again.");
     }
   };
-  
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -137,7 +146,7 @@ export const RegisterScreen = ({ navigation }) => {
         style={styles.input}
         right={
           <TextInput.Icon
-            icon={passwordVisible ? 'eye-off' : 'eye'}
+            icon={passwordVisible ? "eye-off" : "eye"}
             onPress={() => setPasswordVisible(!passwordVisible)}
           />
         }
@@ -167,7 +176,7 @@ export const RegisterScreen = ({ navigation }) => {
 
       <TouchableOpacity style={styles.fileButton} onPress={pickDocument}>
         <Text style={styles.fileButtonText}>
-          {document ? document.name : '📄 Select Document'}
+          {document ? document.name : "📄 Select Document"}
         </Text>
       </TouchableOpacity>
 
@@ -177,7 +186,7 @@ export const RegisterScreen = ({ navigation }) => {
 
       <View style={styles.footer}>
         <Text>Already have an account?</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
           <Text style={styles.loginLink}> Login here</Text>
         </TouchableOpacity>
       </View>
@@ -188,59 +197,59 @@ export const RegisterScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     padding: 24,
-    backgroundColor: '#f9fafd',
+    backgroundColor: "#f9fafd",
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   title: {
     fontSize: 30,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 32,
-    color: '#0ba9bb',
+    color: "#0ba9bb",
   },
   input: {
     marginBottom: 16,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   fileButton: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     padding: 14,
     borderRadius: 12,
-    backgroundColor: '#e8f8fa',
+    backgroundColor: "#e8f8fa",
     marginBottom: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
   },
   fileButtonText: {
-    color: '#007a87',
+    color: "#007a87",
     fontSize: 15,
   },
   registerButton: {
-    backgroundColor: '#0ba9bb',
+    backgroundColor: "#0ba9bb",
     padding: 16,
     borderRadius: 30,
-    alignItems: 'center',
+    alignItems: "center",
     elevation: 2,
     marginTop: 8,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
     fontSize: 16,
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginTop: 24,
   },
   loginLink: {
-    color: '#0ba9bb',
+    color: "#0ba9bb",
     marginLeft: 6,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });

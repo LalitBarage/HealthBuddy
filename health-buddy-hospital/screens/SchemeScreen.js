@@ -111,7 +111,7 @@ export const SchemeScreen = () => {
         const token = await AsyncStorage.getItem("userToken");
 
         const response = await fetch(
-          `${API_URL}/api/scheme/getAppliedSchemeByHid/${id}`,
+          `http://192.168.63.106:3000/api/scheme/getAppliedSchemeByHid/${id}`,
           {
             method: "GET",
             headers: {
@@ -181,14 +181,17 @@ export const SchemeScreen = () => {
     };
 
     try {
-      const res = await fetch(`${API_URL}/api/scheme/applyScheme`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${await AsyncStorage.getItem("userToken")}`,
-        },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        `http://192.168.63.106:3000/api/scheme/applyScheme`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${await AsyncStorage.getItem("userToken")}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       const data = await res.json();
 
@@ -240,7 +243,7 @@ export const SchemeScreen = () => {
       if (deletePendingId) {
         try {
           const response = await fetch(
-            `${API_URL}/api/scheme/deleteAppliedScheme/${deletePendingId}`,
+            `http://192.168.63.106:3000/api/scheme/deleteAppliedScheme/${deletePendingId}`,
             {
               method: "DELETE",
               headers: {
@@ -289,7 +292,7 @@ export const SchemeScreen = () => {
       };
       console.log(updateScheme);
       const response = await fetch(
-        `${API_URL}/api/scheme/updateAppliedScheme/${selectedSchemeId.apscid}`,
+        `http://192.168.63.106:3000/api/scheme/updateAppliedScheme/${selectedSchemeId.apscid}`,
         {
           method: "PUT",
           headers: {

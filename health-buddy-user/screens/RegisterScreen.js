@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   StyleSheet,
@@ -6,20 +6,20 @@ import {
   Alert,
   TouchableOpacity,
   Platform,
-} from 'react-native';
-import { TextInput, Button, Text, Provider } from 'react-native-paper';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { API_URL} from '@env';
-import axios from "axios"
+} from "react-native";
+import { TextInput, Button, Text, Provider } from "react-native-paper";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { API_URL } from "@env";
+import axios from "axios";
 
 export const RegisterScreen = () => {
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState("");
   const [patient, setPatient] = useState({
-    name: '',
-    aadhar: '',
-    dob: '',
-    gender: '',
-    pincode: '',
+    name: "",
+    aadhar: "",
+    dob: "",
+    gender: "",
+    pincode: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -27,7 +27,7 @@ export const RegisterScreen = () => {
   const [dobPickerVisible, setDobPickerVisible] = useState(false);
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
-  const genderOptions = ['Male', 'Female', 'Other'];
+  const genderOptions = ["Male", "Female", "Other"];
 
   const validatePhone = (value) => /^\d{10}$/.test(value);
   const validateAadhar = (value) => /^\d{12}$/.test(value);
@@ -35,11 +35,11 @@ export const RegisterScreen = () => {
   const handleChange = (field, value) => {
     setPatient({ ...patient, [field]: value });
 
-    if (field === 'aadhar') {
+    if (field === "aadhar") {
       if (!validateAadhar(value)) {
-        setErrors((prev) => ({ ...prev, aadhar: 'Aadhar must be 12 digits' }));
+        setErrors((prev) => ({ ...prev, aadhar: "Aadhar must be 12 digits" }));
       } else {
-        setErrors((prev) => ({ ...prev, aadhar: '' }));
+        setErrors((prev) => ({ ...prev, aadhar: "" }));
       }
     }
   };
@@ -47,48 +47,51 @@ export const RegisterScreen = () => {
   const handleDateChange = (_, selectedDate) => {
     setDobPickerVisible(false);
     if (selectedDate) {
-      const dateStr = selectedDate.toISOString().split('T')[0];
-      handleChange('dob', dateStr);
+      const dateStr = selectedDate.toISOString().split("T")[0];
+      handleChange("dob", dateStr);
     }
   };
 
   const handleSubmit = async () => {
     if (!validatePhone(phone) || !validateAadhar(patient.aadhar)) {
-      Alert.alert('Validation Error', 'Please correct the highlighted fields.');
+      Alert.alert("Validation Error", "Please correct the highlighted fields.");
       return;
     }
-  
+
     try {
       const payload = {
-        pFirstName: patient.name.split(' ')[0] || '',
-        pLastName: patient.name.split(' ')[1] || '',
+        pFirstName: patient.name.split(" ")[0] || "",
+        pLastName: patient.name.split(" ")[1] || "",
         addhar: patient.aadhar,
         dob: patient.dob,
         mobileno: phone,
         gender: patient.gender,
         pincode: patient.pincode,
       };
-  
-      const response = await axios.post(`${API_URL}/api/auth/registerUser`, payload);
-  
+
+      const response = await axios.post(
+        `http://192.168.63.106:3000/api/auth/registerUser`,
+        payload
+      );
+
       if (response.status === 201) {
-        Alert.alert('Success', 'Patient registered successfully!');
+        Alert.alert("Success", "Patient registered successfully!");
         setPatient({
-          name: '',
-          aadhar: '',
-          dob: '',
-          address: '',
-          gender: '',
-          pincode: '',
+          name: "",
+          aadhar: "",
+          dob: "",
+          address: "",
+          gender: "",
+          pincode: "",
         });
-        setPhone('');
+        setPhone("");
       } else {
-        Alert.alert('Error', 'Something went wrong. Please try again.');
+        Alert.alert("Error", "Something went wrong. Please try again.");
       }
     } catch (err) {
       console.error(err);
-      const message = err.response?.data?.error || 'Server error';
-      Alert.alert('Registration Failed', message);
+      const message = err.response?.data?.error || "Server error";
+      Alert.alert("Registration Failed", message);
     }
   };
 
@@ -104,9 +107,12 @@ export const RegisterScreen = () => {
           onChangeText={(val) => {
             setPhone(val);
             if (!validatePhone(val)) {
-              setErrors((prev) => ({ ...prev, phone: 'Phone number must be 10 digits' }));
+              setErrors((prev) => ({
+                ...prev,
+                phone: "Phone number must be 10 digits",
+              }));
             } else {
-              setErrors((prev) => ({ ...prev, phone: '' }));
+              setErrors((prev) => ({ ...prev, phone: "" }));
             }
           }}
           error={!!errors.phone}
@@ -114,13 +120,11 @@ export const RegisterScreen = () => {
         />
         {errors.phone ? <Text style={styles.error}>{errors.phone}</Text> : null}
 
-        
-
         <TextInput
           label="Patient Name"
           mode="outlined"
           value={patient.name}
-          onChangeText={(val) => handleChange('name', val)}
+          onChangeText={(val) => handleChange("name", val)}
           style={styles.input}
         />
 
@@ -129,11 +133,13 @@ export const RegisterScreen = () => {
           mode="outlined"
           keyboardType="numeric"
           value={patient.aadhar}
-          onChangeText={(val) => handleChange('aadhar', val)}
+          onChangeText={(val) => handleChange("aadhar", val)}
           error={!!errors.aadhar}
           style={styles.input}
         />
-        {errors.aadhar ? <Text style={styles.error}>{errors.aadhar}</Text> : null}
+        {errors.aadhar ? (
+          <Text style={styles.error}>{errors.aadhar}</Text>
+        ) : null}
 
         <TouchableOpacity onPress={() => setDobPickerVisible(true)}>
           <TextInput
@@ -150,14 +156,16 @@ export const RegisterScreen = () => {
           <DateTimePicker
             value={patient.dob ? new Date(patient.dob) : new Date()}
             mode="date"
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            display={Platform.OS === "ios" ? "spinner" : "default"}
             onChange={handleDateChange}
             maximumDate={new Date()}
           />
         )}
 
         <View style={styles.dropdownWrapper}>
-          <TouchableOpacity onPress={() => setDropdownVisible(!dropdownVisible)}>
+          <TouchableOpacity
+            onPress={() => setDropdownVisible(!dropdownVisible)}
+          >
             <TextInput
               label="Gender"
               mode="outlined"
@@ -175,7 +183,7 @@ export const RegisterScreen = () => {
                   key={option}
                   style={styles.option}
                   onPress={() => {
-                    handleChange('gender', option);
+                    handleChange("gender", option);
                     setDropdownVisible(false);
                   }}
                 >
@@ -191,13 +199,13 @@ export const RegisterScreen = () => {
           mode="outlined"
           keyboardType="numeric"
           value={patient.pincode}
-          onChangeText={(val) => handleChange('pincode', val)}
+          onChangeText={(val) => handleChange("pincode", val)}
           style={styles.input}
         />
 
         <TouchableOpacity style={styles.registerButton} onPress={handleSubmit}>
           <Text style={styles.buttonText}>
-            {isExisting ? 'Update Patient' : 'Register Patient'}
+            {isExisting ? "Update Patient" : "Register Patient"}
           </Text>
         </TouchableOpacity>
       </ScrollView>
@@ -208,40 +216,40 @@ export const RegisterScreen = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 24,
-    backgroundColor: '#f9fafd',
+    backgroundColor: "#f9fafd",
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   title: {
     fontSize: 30,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 32,
-    color: '#0ba9bb',
+    color: "#0ba9bb",
   },
   input: {
     marginBottom: 16,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   fetchButton: {
-    backgroundColor: '#0ba9bb',
+    backgroundColor: "#0ba9bb",
     marginBottom: 20,
   },
   registerButton: {
-    backgroundColor: '#0ba9bb',
+    backgroundColor: "#0ba9bb",
     padding: 16,
     borderRadius: 30,
-    alignItems: 'center',
+    alignItems: "center",
     elevation: 2,
     marginTop: 8,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
     fontSize: 16,
   },
   error: {
-    color: 'red',
+    color: "red",
     marginBottom: 10,
     marginLeft: 4,
   },
@@ -249,16 +257,16 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   dropdown: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     marginTop: 2,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   option: {
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
 });

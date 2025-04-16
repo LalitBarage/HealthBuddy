@@ -1,14 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { FaEnvelope, FaLock } from "react-icons/fa";
+import { Context } from "../main";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { setIsAuthenticated, setUser } = useContext(Context);
+  const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // handle login logic here
-    console.log("Email:", email, "Password:", password);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/api/auth/loginSubDistAdmin",
+        {
+          email,
+          password,
+        },
+        { withCredentials: true }
+      );
+
+      const { subDistAdmin, token, message } = response.data;
+
+      if (subDistAdmin && token) {
+        // Just store data in context (no localStorage)
+        setUser(subDistAdmin);
+        setIsAuthenticated(true);
+
+        console.log("Login success:", subDistAdmin);
+        navigate("/");
+      } else {
+        alert(message || "Login failed");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert(
+        error.response?.data?.message ||
+          "Something went wrong. Please try again."
+      );
+    }
   };
 
   return (
