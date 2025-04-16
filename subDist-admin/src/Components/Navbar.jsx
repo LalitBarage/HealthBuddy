@@ -19,6 +19,9 @@ const Navbar = () => {
           <Link to="/request" className="hover:underline">
             Requests
           </Link>
+          <Link to="/hosprequest" className="hover:underline">
+            Hospital Request
+          </Link>
           <Link to="/campaign" className="hover:underline">
             Campaign
           </Link>
@@ -56,6 +59,13 @@ const Navbar = () => {
             onClick={() => setMenuOpen(false)}
           >
             Requests
+          </Link>
+          <Link
+            to="/hosprequest"
+            className="block"
+            onClick={() => setMenuOpen(false)}
+          >
+            Hospital Requests
           </Link>
           <Link
             to="/campaign"
