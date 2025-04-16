@@ -8,6 +8,7 @@ const {
   userProfile,
   changePassword,
   loginSubDistAdmin,
+  adminProfile,
 } = require("../controllers/authController");
 const verifyToken = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -22,5 +23,6 @@ router.post("/registerHospital", registerHospital);
 router.post("/loginHospital", loginHospital);
 
 router.post("/loginSubDistAdmin", loginSubDistAdmin);
+router.post("/profileSubDistAdmin", verifyToken, adminProfile);
 
 module.exports = router;

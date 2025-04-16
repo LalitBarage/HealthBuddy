@@ -254,6 +254,20 @@ const loginSubDistAdmin = async (req, res) => {
   }
 };
 
+const adminProfile = async (req, res) => {
+  const { email } = req.params;
+  try {
+    const subDistAdmin = await getSubDistAdminByEmail(email);
+    if (!subDistAdmin)
+      return res.status(404).json({ error: "Admin not found" });
+
+    const { password, ...adminWithoutPassword } = subDistAdmin;
+    res.status(200).json(adminWithoutPassword);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -263,4 +277,5 @@ module.exports = {
   userProfile,
   changePassword,
   loginSubDistAdmin,
+  adminProfile,
 };
