@@ -7,8 +7,8 @@ const getSchemeBySubDist = async (req, res) => {
       return res.status(400).json({ message: "Sub-district ID is required" });
     }
 
-    const subDist = await findSchemeBySubDist(subDist);
-    if (!subDist) {
+    const schemes = await findSchemeBySubDist(subDist);
+    if (!schemes) {
       return res.status(404).json({ message: "Sub-district not found" });
     }
     return res.status(200).json({ schemes });
