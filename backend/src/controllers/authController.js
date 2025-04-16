@@ -231,15 +231,15 @@ const loginSubDistAdmin = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const subDistAdmin = await getSubDistAdminByEmail(email);
-    if (!subDistAdmin)
+    const admin = await getSubDistAdminByEmail(email);
+    if (!admin)
       return res.status(400).json({ error: "Invalid email or password" });
 
-    if (!subDistAdmin || subDistAdmin.password !== password) {
+    if (!admin || admin.password !== password) {
       return res.status(400).json({ error: "Invalid email or password" });
     }
 
-    const token = jwt.sign({ id: subDistAdmin.id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: admin.id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
 
@@ -249,7 +249,7 @@ const loginSubDistAdmin = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    res.status(200).json({ subDistAdmin, token });
+    res.status(200).json({ admin, token });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
   }
