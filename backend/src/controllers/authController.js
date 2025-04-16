@@ -234,11 +234,15 @@ const loginSubDistAdmin = async (req, res) => {
     if (!subDistAdmin)
       return res.status(400).json({ error: "Invalid email or password" });
 
+    if (!subDistAdmin || subDistAdmin.password !== password) {
+      return res.status(400).json({ error: "Invalid email or password" });
+    }
+
     const token = jwt.sign({ id: subDistAdmin.id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
 
-    res.Cookie("token", token, {
+    res.cookie("token", token, {
       httpOnly: true,
       sameSite: "lax",
     });
