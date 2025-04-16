@@ -238,7 +238,7 @@ const loginSubDistAdmin = async (req, res) => {
       expiresIn: "1d",
     });
 
-    res.setCookie("token", token, {
+    res.Cookie("token", token, {
       httpOnly: true,
       sameSite: "lax",
     });
