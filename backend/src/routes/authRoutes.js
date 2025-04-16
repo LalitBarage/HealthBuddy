@@ -7,6 +7,7 @@ const {
   loginHospital,
   userProfile,
   changePassword,
+  loginSubDistAdmin,
 } = require("../controllers/authController");
 const verifyToken = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -19,5 +20,7 @@ router.put("/changePassword/:paddhar", verifyToken, changePassword);
 
 router.post("/registerHospital", registerHospital);
 router.post("/loginHospital", loginHospital);
+
+router.post("/loginSubDistAdmin", loginSubDistAdmin);
 
 module.exports = router;

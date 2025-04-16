@@ -83,10 +83,19 @@ const updateUserPassword = async (paddhar, password) => {
   return result.rows[0];
 };
 
+const getSubDistAdminByEmail = async (email) => {
+  const result = await db.query(
+    "SELECT * FROM sub_dist_admin WHERE email = $1",
+    [email]
+  );
+  return result.rows[0];
+};
+
 module.exports = {
   createUser,
   getUserByPaddhar,
   createHospital,
   getHospitalByEmail,
   updateUserPassword,
+  getSubDistAdminByEmail,
 };

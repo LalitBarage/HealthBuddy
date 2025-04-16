@@ -8,6 +8,7 @@ const {
   getHospitalByEmail,
   getUserByPaddhar,
   updateUserPassword,
+  getSubDistAdminByEmail,
 } = require("../models/userModel");
 
 const registerUser = async (req, res) => {
@@ -225,6 +226,28 @@ const changePassword = async (req, res) => {
   }
 };
 
+const loginSubDistAdmin = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const subDistAdmin = await getSubDistAdminByEmail(email);
+    if (!subDistAdmin)
+      return res.status(400).json({ error: "Invalid email or password" });
+
+    const match = await bcrypt.compare(password, subDistAdmin.password);
+    if (!match)
+      return res.status(400).json({ error: "Invalid email or password" });
+
+    const token = jwt.sign({ id: subDistAdmin.id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    res.status(200).json({ subDistAdmin, token });
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -233,4 +256,5 @@ module.exports = {
   loginHospital,
   userProfile,
   changePassword,
+  loginSubDistAdmin,
 };
