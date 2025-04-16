@@ -258,7 +258,7 @@ const loginSubDistAdmin = async (req, res) => {
 const adminProfile = async (req, res) => {
   const { id } = req.params;
   try {
-    const subDistAdmin = await getSubDistAdminById(email);
+    const subDistAdmin = await getSubDistAdminById(id);
     if (!subDistAdmin)
       return res.status(404).json({ error: "Admin not found" });
 
