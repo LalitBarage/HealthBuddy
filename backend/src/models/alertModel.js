@@ -1,6 +1,6 @@
 const db = require("../config/db");
 
-const addCampaign = async (
+const createCampaign = async (
   name,
   description,
   image_url,
@@ -21,5 +21,5 @@ const addCampaign = async (
 };
 
 module.exports = {
-  addCampaign,
+  createCampaign,
 };

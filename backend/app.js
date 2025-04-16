@@ -5,6 +5,7 @@ const authRoutes = require("./src/routes/authRoutes");
 const enquiryRoutes = require("./src/routes/enquiryRoutes");
 const schemeRoutes = require("./src/routes/schemeRouter");
 const alertRoutes = require("./src/routes/alertRouter");
+const adminRoutes = require("./src/routes/adminRouter");
 const cookieParser = require("cookie-parser");
 const verifyToken = require("./src/middlewares/authMiddleware");
 
@@ -23,6 +24,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/enquiry", verifyToken, enquiryRoutes);
 app.use("/api/scheme", verifyToken, schemeRoutes);
 app.use("/api/alert", verifyToken, alertRoutes);
+app.use("/api/admin", verifyToken, adminRoutes);
 
 const PORT = process.env.PORT || 5000;
 

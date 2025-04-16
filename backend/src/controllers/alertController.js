@@ -1,3 +1,5 @@
+const { createCampaign } = require("../models/alertModel");
+
 const addCampaign = async (req, res) => {
   const { name, description, image_url, startDate, endDate, link } = req.body;
 
