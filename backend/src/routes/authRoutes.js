@@ -23,6 +23,6 @@ router.post("/registerHospital", registerHospital);
 router.post("/loginHospital", loginHospital);
 
 router.post("/loginSubDistAdmin", loginSubDistAdmin);
-router.post("/profileSubDistAdmin", verifyToken, adminProfile);
+router.get("/profileSubDistAdmin/:id", verifyToken, adminProfile);
 
 module.exports = router;

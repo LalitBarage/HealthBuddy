@@ -90,6 +90,11 @@ const getSubDistAdminByEmail = async (email) => {
   return result.rows[0];
 };
 
+const getSubDistAdminById = async (id) => {
+  const result = await db.query("SELECT * FROM admin WHERE id = $1", [id]);
+  return result.rows[0];
+};
+
 module.exports = {
   createUser,
   getUserByPaddhar,
@@ -97,4 +102,5 @@ module.exports = {
   getHospitalByEmail,
   updateUserPassword,
   getSubDistAdminByEmail,
+  getSubDistAdminById,
 };

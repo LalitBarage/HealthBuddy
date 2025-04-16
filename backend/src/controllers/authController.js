@@ -9,6 +9,7 @@ const {
   getUserByPaddhar,
   updateUserPassword,
   getSubDistAdminByEmail,
+  getSubDistAdminById,
 } = require("../models/userModel");
 
 const registerUser = async (req, res) => {
@@ -255,9 +256,9 @@ const loginSubDistAdmin = async (req, res) => {
 };
 
 const adminProfile = async (req, res) => {
-  const { email } = req.params;
+  const { id } = req.params;
   try {
-    const subDistAdmin = await getSubDistAdminByEmail(email);
+    const subDistAdmin = await getSubDistAdminById(email);
     if (!subDistAdmin)
       return res.status(404).json({ error: "Admin not found" });
 
