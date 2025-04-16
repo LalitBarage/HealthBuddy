@@ -84,10 +84,9 @@ const updateUserPassword = async (paddhar, password) => {
 };
 
 const getSubDistAdminByEmail = async (email) => {
-  const result = await db.query(
-    "SELECT * FROM sub_dist_admin WHERE email = $1",
-    [email]
-  );
+  const result = await db.query("SELECT * FROM admin WHERE email = $1", [
+    email,
+  ]);
   return result.rows[0];
 };
 

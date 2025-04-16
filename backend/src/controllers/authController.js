@@ -234,10 +234,6 @@ const loginSubDistAdmin = async (req, res) => {
     if (!subDistAdmin)
       return res.status(400).json({ error: "Invalid email or password" });
 
-    const match = await bcrypt.compare(password, subDistAdmin.password);
-    if (!match)
-      return res.status(400).json({ error: "Invalid email or password" });
-
     const token = jwt.sign({ id: subDistAdmin.id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
