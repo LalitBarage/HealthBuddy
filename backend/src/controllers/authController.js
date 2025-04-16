@@ -238,6 +238,11 @@ const loginSubDistAdmin = async (req, res) => {
       expiresIn: "1d",
     });
 
+    res.setCookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+    });
+
     res.status(200).json({ subDistAdmin, token });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
