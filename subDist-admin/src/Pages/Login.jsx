@@ -23,17 +23,20 @@ const Login = () => {
         { withCredentials: true }
       );
 
-      const { subDistAdmin, token, message } = response.data;
+      const { admin, token } = response.data;
 
-      if (subDistAdmin && token) {
-        // Just store data in context (no localStorage)
-        setUser(subDistAdmin);
+      if (admin && token) {
+        setUser(admin);
         setIsAuthenticated(true);
 
-        console.log("Login success:", subDistAdmin);
-        navigate("/");
+        // Save user and isAuthenticated to localStorage
+        localStorage.setItem("user", JSON.stringify(admin));
+        localStorage.setItem("isAuthenticated", "true");
+
+        console.log("Login success:", admin);
+        navigate("/"); // Navigate to the home page after successful login
       } else {
-        alert(message || "Login failed");
+        alert(error.response?.data?.message || "Login failed");
       }
     } catch (error) {
       console.error("Login error:", error);
