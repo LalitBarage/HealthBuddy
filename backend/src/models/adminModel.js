@@ -68,8 +68,8 @@ const addAlertToDatabase = async (message, severity, location) => {
 const findDiseaseCountBySubDist = async (subDist) => {
   try {
     const result = await db.query(
-      `SELECT enquiry, COUNT(*) as count FROM disease_data WHERE sub_dist = $1 GROUP BY disease`,
-      [subDist]
+      `SELECT diseases, COUNT(*) as count FROM enquiry WHERE sub_dist = $1 GROUP BY disease`,
+      [sub_dist]
     );
     return result.rows;
   } catch (error) {

@@ -110,13 +110,13 @@ const addAlert = async (req, res) => {
 };
 
 const getDiseaseCount = async (req, res) => {
-  const { subDist } = req.params;
+  const { sub_dist } = req.params;
   try {
     if (!subDist) {
       return res.status(400).json({ message: "Sub-district ID is required" });
     }
 
-    const diseaseCount = await findDiseaseCountBySubDist(subDist);
+    const diseaseCount = await findDiseaseCountBySubDist(sub_dist);
     if (!diseaseCount) {
       return res.status(404).json({ message: "Sub-district not found" });
     }

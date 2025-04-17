@@ -17,6 +17,6 @@ router.put("/updateHospitalStatus/:hid", updateHospitalStatus);
 
 router.post("/addAlert", addAlert);
 
-router.get("/diseaseCount", getDiseaseCount);
+router.get("/diseaseCount/:sub_dist", getDiseaseCount);
 
 module.exports = router;
