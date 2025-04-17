@@ -3,7 +3,7 @@ import { FaEye } from "react-icons/fa";
 
 const DocumentButtons = ({ documents, onView }) => {
   const docLabels = {
-    hospitalcertificate: "hospital certificate",
+    hospitalcertificate: "Hospital Certificate",
     electricityBill: "Electricity Bill",
     casteCertificate: "Caste Certificate",
     bankPassbook: "Bank Passbook",
@@ -61,6 +61,7 @@ const Request = () => {
             id: item.apscid,
             name: `Hospital Name-${item.hname}`,
             status: mappedStatus,
+            hid: item.hid, // Adding hid here
             documents: {
               hospitalcertificate: item.document_url,
             },
@@ -73,17 +74,17 @@ const Request = () => {
         setRequests(formatted);
         console.log("All formatted requests:", formatted);
       } catch (error) {
-        console.error("Error fetching scheme data:", error);
+        console.error("Error fetching hospital data:", error);
       }
     };
 
     fetchHospitals();
   }, []);
 
-  const updateStatusInBackend = async (id, status) => {
+  const updateStatusInBackend = async (hid, status) => {
     try {
       const res = await fetch(
-        `http://localhost:3000/api/admin/updateSchemeStatus/${id}`,
+        `http://localhost:3000/api/admin/updateHospitalStatus/${hid}`, // Updated endpoint
         {
           method: "PUT",
           headers: {
@@ -101,16 +102,14 @@ const Request = () => {
     }
   };
 
-  const handleStatusChange = async (id, newStatus) => {
+  const handleStatusChange = async (hid, newStatus) => {
     // Update the status locally first
     setRequests((prev) =>
-      prev.map((req) => (req.id === id ? { ...req, status: newStatus } : req))
+      prev.map((req) => (req.hid === hid ? { ...req, status: newStatus } : req))
     );
 
     // Handle the backend status change
-    if (newStatus === "Accepted" || newStatus === "Rejected") {
-      await updateStatusInBackend(id, newStatus === "Accepted");
-    }
+    await updateStatusInBackend(hid, newStatus);
   };
 
   const getStatusBadge = (status) => {
@@ -128,11 +127,9 @@ const Request = () => {
     );
   };
 
-  // Filter the requests for pending and past requests
-  const pendingRequests = requests.filter((r) => r.status === "Pending");
-  const pastRequests = requests.filter(
-    (r) => r.status === "Accepted" || r.status === "Rejected"
-  );
+  // Separate requests based on status
+  const pendingRequests = requests.filter((r) => r.status === "Rejected");
+  const acceptedRequests = requests.filter((r) => r.status === "Accepted");
 
   return (
     <div className="p-6 bg-white min-h-screen text-black">
@@ -150,7 +147,7 @@ const Request = () => {
         {pendingRequests.length > 0 ? (
           pendingRequests.map((req) => (
             <div
-              key={req.id}
+              key={req.hid}
               className="bg-[#0ba9bb] rounded-xl shadow-md px-5 py-4 hover:shadow-lg transition"
             >
               <h4 className="text-xl font-semibold text-white">{req.name}</h4>
@@ -159,7 +156,7 @@ const Request = () => {
                 <select
                   className="rounded px-3 py-1 text-sm focus:outline-none bg-amber-50"
                   value={req.status}
-                  onChange={(e) => handleStatusChange(req.id, e.target.value)}
+                  onChange={(e) => handleStatusChange(req.hid, e.target.value)}
                 >
                   <option value="Pending">Pending</option>
                   <option value="Accepted">Accepted</option>
@@ -183,10 +180,10 @@ const Request = () => {
             Past Requests
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {pastRequests.length > 0 ? (
-              pastRequests.map((h) => (
+            {acceptedRequests.length > 0 ? (
+              acceptedRequests.map((h) => (
                 <div
-                  key={h.id}
+                  key={h.hid}
                   className="bg-[#7dc6ce] rounded-xl shadow-md px-5 py-4 hover:shadow-lg transition"
                 >
                   <h4 className="text-xl font-semibold text-white">{h.name}</h4>
