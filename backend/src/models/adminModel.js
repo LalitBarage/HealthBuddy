@@ -52,9 +52,23 @@ const updateHospitalStatusById = async (hid, status) => {
   }
 };
 
+const addAlertToDatabase = async (message, severity, location) => {
+  try {
+    const result = await db.query(
+      `INSERT INTO alerts (message, severity, location) VALUES ($1, $2, $3)`,
+      [message, severity, location]
+    );
+    return result;
+  } catch (error) {
+    console.error("Error in addAlertToDatabase:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   findSchemeBySubDist,
   updateSchemeStatusById,
   findHospitalBySubDist,
   updateHospitalStatusById,
+  addAlertToDatabase,
 };
