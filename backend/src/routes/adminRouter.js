@@ -4,6 +4,7 @@ const {
   updateSchemeStatus,
   getHopitalBySubDist,
   updateHospitalStatus,
+  addAlert,
 } = require("../controllers/adminController");
 const router = express.Router();
 
@@ -12,5 +13,7 @@ router.put("/updateSchemeStatus/:apscid", updateSchemeStatus);
 
 router.get("/getHospitalRequests/:subDist", getHopitalBySubDist);
 router.put("/updateHospitalStatus/:hid", updateHospitalStatus);
+
+router.get("/addAlert", addAlert);
 
 module.exports = router;

@@ -39,4 +39,21 @@ const deleteCampaignById = async (id) => {
   }
 };
 
-module.exports = { createCampaign, getCampaigns, deleteCampaignById };
+const getAlertsByLocation = async (location) => {
+  try {
+    const result = await db.query("SELECT * FROM alerts WHERE location = $1", [
+      location,
+    ]);
+
+    return result.rows;
+  } catch (err) {
+    throw new Error("Error fetching alerts: " + err.message);
+  }
+};
+
+module.exports = {
+  createCampaign,
+  getCampaigns,
+  deleteCampaignById,
+  getAlertsByLocation,
+};

@@ -2,6 +2,7 @@ const {
   createCampaign,
   getCampaigns,
   deleteCampaignById,
+  getAlertsByLocation,
 } = require("../models/alertModel");
 
 const addCampaign = async (req, res) => {
@@ -64,4 +65,25 @@ const deleteCampaign = async (req, res) => {
   }
 };
 
-module.exports = { addCampaign, getCampaignsController, deleteCampaign };
+const getAlerts = async (req, res) => {
+  const { location } = req.params;
+
+  try {
+    const alerts = await getAlertsByLocation(location);
+
+    if (alerts.length === 0) {
+      return res.status(404).json({ error: "No alerts found" });
+    }
+
+    res.status(200).json({ alerts });
+  } catch (err) {
+    res.status(500).json({ error: "Server error", err: err.message });
+  }
+};
+
+module.exports = {
+  addCampaign,
+  getCampaignsController,
+  deleteCampaign,
+  getAlerts,
+};
