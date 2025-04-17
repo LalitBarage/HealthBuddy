@@ -3,14 +3,27 @@ import React, { useState, useEffect } from "react";
 const Alert = () => {
   const [message, setMessage] = useState("");
   const [severity, setSeverity] = useState("low");
-  const [pincode, setPincode] = useState("");
+  const [location, setPincode] = useState("");
   const [pastAlerts, setPastAlerts] = useState([]);
 
   const fetchPastAlerts = async () => {
     try {
-      const response = await fetch("https://your-backend-url.com/api/alerts");
+      const user = JSON.parse(localStorage.getItem("user"));
+      const location = user.sub_dist;
+
+      const response = await fetch(
+        `http://localhost:3000/api/alert/getAlerts/${location}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
       const data = await response.json();
-      setPastAlerts(data);
+      console.log(data);
+      setPastAlerts(data.alerts);
     } catch (error) {
       console.error("Error fetching past alerts:", error);
     }
@@ -21,14 +34,15 @@ const Alert = () => {
   }, []);
 
   const handleSubmit = () => {
-    if (!message || !severity || !pincode) return;
+    if (!message || !severity || !location) return;
 
-    fetch("https://your-backend-url.com/api/alerts", {
+    fetch("http://localhost:3000/api/admin/addAlert", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      body: JSON.stringify({ message, severity, pincode }),
+      body: JSON.stringify({ message, severity, location }),
     })
       .then((res) => res.json())
       .then(() => {
@@ -66,8 +80,8 @@ const Alert = () => {
         <input
           type="text"
           className="w-full p-4 border border-[#0990A5] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0990A5] bg-gray-50"
-          placeholder="Enter pincode"
-          value={pincode}
+          placeholder="Enter location"
+          value={location}
           onChange={(e) => setPincode(e.target.value)}
         />
         <button
@@ -101,7 +115,7 @@ const Alert = () => {
                     {alert.severity.toUpperCase()}
                   </span>
                   <span className="text-sm text-gray-600">
-                    Pincode: {alert.pincode}
+                    Location: {alert.location}
                   </span>
                 </div>
                 <p>{alert.message}</p>

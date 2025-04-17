@@ -89,11 +89,10 @@ const updateHospitalStatus = async (req, res) => {
 };
 
 const addAlert = async (req, res) => {
-  const { message, severity } = req.body;
-  const { location } = req.params;
+  const { message, severity, location } = req.body;
 
   try {
-    if (!title || !description || !date) {
+    if (!message || !severity || !location) {
       return res.status(400).json({ message: "All fields are required" });
     }
 

@@ -14,6 +14,6 @@ router.put("/updateSchemeStatus/:apscid", updateSchemeStatus);
 router.get("/getHospitalRequests/:subDist", getHopitalBySubDist);
 router.put("/updateHospitalStatus/:hid", updateHospitalStatus);
 
-router.get("/addAlert", addAlert);
+router.post("/addAlert", addAlert);
 
 module.exports = router;
