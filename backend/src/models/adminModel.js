@@ -13,6 +13,20 @@ const findSchemeBySubDist = async (subDist) => {
   }
 };
 
+const updateSchemeStatusById = async (apscid, status) => {
+  try {
+    const result = await db.query(
+      `UPDATE applied_schemes SET status = $1 WHERE apscid = $2`,
+      [status, apscid]
+    );
+    return result;
+  } catch (error) {
+    console.error("Error in updateSchemeStatusById:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   findSchemeBySubDist,
+  updateSchemeStatusById,
 };
