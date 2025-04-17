@@ -9,17 +9,25 @@ const createCampaign = async (
   link
 ) => {
   try {
-    const campaign = await db.query(
-      "INSERT INTO campaigns (name, description, image_url, startDate, endDate, link) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+    const result = await db.query(
+      "INSERT INTO campaigns (title, description, image_url, start_date, end_date, link) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
       [name, description, image_url, startDate, endDate, link]
     );
 
-    res.status(201).json({ campaign });
+    // Return the inserted campaign data instead of responding here
+    return result.rows[0]; // Assuming `rows[0]` is the newly created campaign
   } catch (err) {
-    res.status(500).json({ error: "Server error", err: err.message });
+    throw new Error(err.message); // Rethrow error for the controller to handle
   }
 };
 
-module.exports = {
-  createCampaign,
+const getCampaigns = async () => {
+  try {
+    const result = await db.query("SELECT * FROM campaigns"); // Fetch all campaigns
+    return result.rows; // Return the rows (campaigns) from the query
+  } catch (err) {
+    throw new Error("Error fetching campaigns: " + err.message); // Handle any errors
+  }
 };
+
+module.exports = { createCampaign, getCampaigns };

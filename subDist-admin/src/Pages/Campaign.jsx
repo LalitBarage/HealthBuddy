@@ -1,5 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
+import { Context } from "../main";
+
+const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/du2pijo5y/upload";
+const CLOUDINARY_UPLOAD_PRESET = "unsigned_pdf_upload";
 
 const Campaign = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -13,6 +17,9 @@ const Campaign = () => {
     link: "",
   });
   const [imageFile, setImageFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const { isAuthenticated, setIsAuthenticated, user, setUser } =
+    useContext(Context);
 
   useEffect(() => {
     fetchCampaigns();
@@ -20,8 +27,18 @@ const Campaign = () => {
 
   const fetchCampaigns = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/campaigns");
-      setCampaigns(response.data);
+      const response = await axios.get(
+        "http://localhost:3000/api/alert/getCampaigns",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      console.log(response.data);
+      setCampaigns(
+        Array.isArray(response.data.campaigns) ? response.data.campaigns : []
+      );
     } catch (error) {
       console.error("Error fetching campaigns", error);
     }
@@ -34,13 +51,49 @@ const Campaign = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setImageFile(file);
-    setFormData({ ...formData, image_url: URL.createObjectURL(file) });
+  };
+
+  const uploadImageToCloudinary = async () => {
+    const data = new FormData();
+    data.append("file", imageFile);
+    data.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+    data.append("cloud_name", "du2pijo5y");
+
+    const res = await axios.post(CLOUDINARY_URL, data);
+    return res.data.secure_url;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem("token"); // Assuming you store the token in localStorage
+    console.log(token);
+
     try {
-      await axios.post("http://localhost:5000/campaigns", formData);
+      setUploading(true);
+
+      let imageUrl = "";
+      if (imageFile) {
+        imageUrl = await uploadImageToCloudinary();
+      }
+
+      const payload = {
+        name: formData.title,
+        description: formData.description,
+        image_url: imageUrl,
+        startDate: formData.start_date,
+        endDate: formData.end_date,
+        link: formData.link,
+      };
+
+      console.log(payload);
+
+      await axios.post("http://localhost:3000/api/alert/addCampaign", payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(payload);
+
       fetchCampaigns();
       setShowPopup(false);
       setFormData({
@@ -54,6 +107,8 @@ const Campaign = () => {
       setImageFile(null);
     } catch (error) {
       console.error("Error adding campaign", error);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -103,13 +158,7 @@ const Campaign = () => {
                 onChange={handleImageChange}
                 className="border p-2 rounded"
               />
-              {imageFile && (
-                <img
-                  src={formData.image_url}
-                  alt="Preview"
-                  className="w-full h-48 object-cover rounded"
-                />
-              )}
+
               <input
                 type="date"
                 name="start_date"
@@ -138,7 +187,6 @@ const Campaign = () => {
                 type="submit"
                 className="py-2 px-4 rounded text-white"
                 style={{ backgroundColor: "#0990A5" }}
-                onClick={() => setShowPopup(false)}
               >
                 Save Campaign
               </button>

@@ -1,7 +1,11 @@
 const express = require("express");
-const { addCampaign } = require("../controllers/alertController");
+const {
+  addCampaign,
+  getCampaignsController,
+} = require("../controllers/alertController");
 const router = express.Router();
 
-router.get("/addCampaign", addCampaign);
+router.post("/addCampaign", addCampaign);
+router.get("/getCampaigns", getCampaignsController);
 
 module.exports = router;

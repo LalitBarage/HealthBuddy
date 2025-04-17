@@ -28,6 +28,7 @@ const Login = () => {
       if (admin && token) {
         setUser(admin);
         setIsAuthenticated(true);
+        localStorage.setItem("token", token); // Save token to localStorage
 
         // Save user and isAuthenticated to localStorage
         localStorage.setItem("user", JSON.stringify(admin));

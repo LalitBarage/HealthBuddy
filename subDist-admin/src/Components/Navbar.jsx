@@ -1,9 +1,28 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react"; // Optional icons, use any
+import React, { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X } from "lucide-react";
+import { Context } from "../main";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isAuthenticated, setIsAuthenticated, setUser } = useContext(Context);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Clear localStorage
+    localStorage.removeItem("user");
+    localStorage.removeItem("isAuthenticated");
+
+    // Reset auth state
+    setIsAuthenticated(false);
+    setUser(null); // Use `null` instead of `{}` for clarity
+
+    // Optionally, if you're using cookies or sessions, call the backend to log out
+    // axios.get("http://localhost:3000/api/auth/logout", { withCredentials: true });
+
+    // Navigate to login page
+    navigate("/login");
+  };
 
   return (
     <nav className="bg-white text-[#0ba9bb] px-6 py-4 shadow-md relative z-50">
@@ -32,11 +51,20 @@ const Navbar = () => {
 
         {/* Right: Login Button */}
         <div className="hidden md:block">
-          <Link to="/login">
-            <button className="bg-[#0ba9bb] text-white font-semibold px-4 py-2 rounded hover:bg-[#0a9aaa] transition">
-              Login
+          {isAuthenticated ? (
+            <button
+              onClick={handleLogout}
+              className="bg-[#0ba9bb] text-white font-semibold px-4 py-2 rounded hover:bg-[#0a9aaa] transition"
+            >
+              Logout
             </button>
-          </Link>
+          ) : (
+            <Link to="/login">
+              <button className="bg-[#0ba9bb] text-white font-semibold px-4 py-2 rounded hover:bg-[#0a9aaa] transition">
+                Login
+              </button>
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -81,15 +109,27 @@ const Navbar = () => {
           >
             Alert
           </Link>
-          <Link
-            to="/login"
-            className="block"
-            onClick={() => setMenuOpen(false)}
-          >
-            <button className="w-full bg-[#0ba9bb] text-white px-4 py-2 rounded">
-              Login
+          {isAuthenticated ? (
+            <button
+              onClick={() => {
+                handleLogout();
+                setMenuOpen(false);
+              }}
+              className="w-full bg-[#0ba9bb] text-white px-4 py-2 rounded"
+            >
+              Logout
             </button>
-          </Link>
+          ) : (
+            <Link
+              to="/login"
+              className="block"
+              onClick={() => setMenuOpen(false)}
+            >
+              <button className="w-full bg-[#0ba9bb] text-white px-4 py-2 rounded">
+                Login
+              </button>
+            </Link>
+          )}
         </div>
       )}
     </nav>
