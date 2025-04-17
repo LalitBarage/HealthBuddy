@@ -26,7 +26,35 @@ const updateSchemeStatusById = async (apscid, status) => {
   }
 };
 
+const findHospitalBySubDist = async (subDist) => {
+  try {
+    const hospitals = await db.query(
+      `SELECT * FROM hospitals WHERE sub_Dist = $1`,
+      [subDist]
+    );
+    return hospitals.rows;
+  } catch (error) {
+    console.error("Error in findHospitalBySubDist:", error);
+    throw error;
+  }
+};
+
+const updateHospitalStatusById = async (hid, status) => {
+  try {
+    const result = await db.query(
+      `UPDATE hospitals SET status = $1 WHERE hid = $2`,
+      [status, hid]
+    );
+    return result;
+  } catch (error) {
+    console.error("Error in updateHospitalStatusById:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   findSchemeBySubDist,
   updateSchemeStatusById,
+  findHospitalBySubDist,
+  updateHospitalStatusById,
 };

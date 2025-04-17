@@ -1,6 +1,8 @@
 const {
   findSchemeBySubDist,
   updateSchemeStatusById,
+  findHospitalBySubDist,
+  updateHospitalStatusById,
 } = require("../models/adminModel");
 
 const getSchemeBySubDist = async (req, res) => {
@@ -43,7 +45,51 @@ const updateSchemeStatus = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+const getHopitalBySubDist = async (req, res) => {
+  const { subDist } = req.params;
+  try {
+    if (!subDist) {
+      return res.status(400).json({ message: "Sub-district ID is required" });
+    }
+
+    const hospitals = await findHospitalBySubDist(subDist);
+    if (!hospitals) {
+      return res.status(404).json({ message: "Sub-district not found" });
+    }
+    return res.status(200).json({ hospitals });
+  } catch (error) {
+    console.error("Error fetching sub-district:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const updateHospitalStatus = async (req, res) => {
+  const { hid } = req.params;
+  const { status } = req.body;
+
+  try {
+    if (!status) {
+      return res.status(400).json({ message: "Status is required" });
+    }
+
+    const result = await updateHospitalStatusById(hid, status);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Hospital not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Hospital status updated successfully" });
+  } catch (error) {
+    console.error("Error updating hospital status:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   getSchemeBySubDist,
   updateSchemeStatus,
+  getHopitalBySubDist,
+  updateHospitalStatus,
 };
