@@ -5,6 +5,7 @@ const {
   getHopitalBySubDist,
   updateHospitalStatus,
   addAlert,
+  getDiseaseCount,
 } = require("../controllers/adminController");
 const router = express.Router();
 
@@ -15,5 +16,7 @@ router.get("/getHospitalRequests/:subDist", getHopitalBySubDist);
 router.put("/updateHospitalStatus/:hid", updateHospitalStatus);
 
 router.post("/addAlert", addAlert);
+
+router.get("/diseaseCount", getDiseaseCount);
 
 module.exports = router;

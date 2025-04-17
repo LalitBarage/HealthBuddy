@@ -65,10 +65,24 @@ const addAlertToDatabase = async (message, severity, location) => {
   }
 };
 
+const findDiseaseCountBySubDist = async (subDist) => {
+  try {
+    const result = await db.query(
+      `SELECT enquiry, COUNT(*) as count FROM disease_data WHERE sub_dist = $1 GROUP BY disease`,
+      [subDist]
+    );
+    return result.rows;
+  } catch (error) {
+    console.error("Error in findDiseaseCountBySubDist:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   findSchemeBySubDist,
   updateSchemeStatusById,
   findHospitalBySubDist,
   updateHospitalStatusById,
   addAlertToDatabase,
+  findDiseaseCountBySubDist,
 };

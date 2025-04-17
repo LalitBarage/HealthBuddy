@@ -4,6 +4,7 @@ const {
   findHospitalBySubDist,
   updateHospitalStatusById,
   addAlertToDatabase,
+  findDiseaseCountBySubDist,
 } = require("../models/adminModel");
 
 const getSchemeBySubDist = async (req, res) => {
@@ -108,10 +109,29 @@ const addAlert = async (req, res) => {
   }
 };
 
+const getDiseaseCount = async (req, res) => {
+  const { subDist } = req.params;
+  try {
+    if (!subDist) {
+      return res.status(400).json({ message: "Sub-district ID is required" });
+    }
+
+    const diseaseCount = await findDiseaseCountBySubDist(subDist);
+    if (!diseaseCount) {
+      return res.status(404).json({ message: "Sub-district not found" });
+    }
+    return res.status(200).json({ diseaseCount });
+  } catch (error) {
+    console.error("Error fetching disease count:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   getSchemeBySubDist,
   updateSchemeStatus,
   getHopitalBySubDist,
   updateHospitalStatus,
   addAlert,
+  getDiseaseCount,
 };
