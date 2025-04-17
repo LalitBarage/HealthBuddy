@@ -10,7 +10,7 @@ const router = express.Router();
 router.get("/getSchemeBySubDist/:subDist", getSchemeBySubDist);
 router.put("/updateSchemeStatus/:apscid", updateSchemeStatus);
 
-router.get("/getHospitalRequests", getHopitalBySubDist);
+router.get("/getHospitalRequests/:subDist", getHopitalBySubDist);
 router.put("/updateHospitalStatus/:hid", updateHospitalStatus);
 
 module.exports = router;

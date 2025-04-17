@@ -1,22 +1,58 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { FaEye } from "react-icons/fa";
 
 const HospitalRequest = () => {
-  const [requests, setRequests] = useState([
-    { id: 1, name: "Apple Hospital", status: "Pending" },
-    { id: 2, name: "Vimal Hospital", status: "Pending" },
-  ]);
-
+  const [requests, setRequests] = useState([]);
+  const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
-  const [history] = useState([
-    { id: 101, name: "Sahyadri Hospital", status: "Accepted" },
-    { id: 102, name: "City Hospital", status: "Rejected" },
-  ]);
 
-  const handleStatusChange = (id, newStatus) => {
-    setRequests((prev) =>
-      prev.map((req) => (req.id === id ? { ...req, status: newStatus } : req))
-    );
+  // Fetch Requests from Backend
+  useEffect(() => {
+    fetchRequests();
+    fetchHistory();
+  }, []);
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  const subDist = user.sub_dist;
+
+  const fetchRequests = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:3000/api/admin/getHospitalRequests/${subDist}`,
+        { withCredentials: true },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      console.log(res.data);
+      setRequests(res.data);
+    } catch (error) {
+      console.error("Error fetching requests:", error);
+    }
+  };
+
+  const fetchHistory = async () => {
+    try {
+      const res = await axios.get("/api/history");
+      setHistory(res.data);
+    } catch (error) {
+      console.error("Error fetching history:", error);
+    }
+  };
+
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      await axios.put(`/api/requests/${id}`, { status: newStatus });
+      // update local state after successful update
+      setRequests((prev) =>
+        prev.map((req) => (req.id === id ? { ...req, status: newStatus } : req))
+      );
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
   };
 
   const getStatusBadge = (status) => {

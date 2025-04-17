@@ -3,7 +3,7 @@ const db = require("../config/db");
 const findSchemeBySubDist = async (subDist) => {
   try {
     const schemes = await db.query(
-      `SELECT * FROM applied_schemes WHERE sub_Dist = $1`,
+      `SELECT * FROM applied_schemes WHERE sub_dist = $1`,
       [subDist]
     );
     return schemes.rows;
@@ -29,7 +29,7 @@ const updateSchemeStatusById = async (apscid, status) => {
 const findHospitalBySubDist = async (subDist) => {
   try {
     const hospitals = await db.query(
-      `SELECT * FROM hospitals WHERE sub_Dist = $1`,
+      `SELECT * FROM hospital_admin WHERE sub_dist = $1`,
       [subDist]
     );
     return hospitals.rows;
@@ -42,7 +42,7 @@ const findHospitalBySubDist = async (subDist) => {
 const updateHospitalStatusById = async (hid, status) => {
   try {
     const result = await db.query(
-      `UPDATE hospitals SET status = $1 WHERE hid = $2`,
+      `UPDATE hospital_admin SET status = $1 WHERE hid = $2`,
       [status, hid]
     );
     return result;
