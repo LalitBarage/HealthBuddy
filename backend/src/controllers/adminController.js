@@ -112,7 +112,7 @@ const addAlert = async (req, res) => {
 const getDiseaseCount = async (req, res) => {
   const { sub_dist } = req.params;
   try {
-    if (!subDist) {
+    if (!sub_dist) {
       return res.status(400).json({ message: "Sub-district ID is required" });
     }
 
