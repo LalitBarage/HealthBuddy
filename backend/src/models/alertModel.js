@@ -14,20 +14,29 @@ const createCampaign = async (
       [name, description, image_url, startDate, endDate, link]
     );
 
-    // Return the inserted campaign data instead of responding here
-    return result.rows[0]; // Assuming `rows[0]` is the newly created campaign
+    return result.rows[0];
   } catch (err) {
-    throw new Error(err.message); // Rethrow error for the controller to handle
+    throw new Error(err.message);
   }
 };
 
 const getCampaigns = async () => {
   try {
-    const result = await db.query("SELECT * FROM campaigns"); // Fetch all campaigns
-    return result.rows; // Return the rows (campaigns) from the query
+    const result = await db.query("SELECT * FROM campaigns");
+    return result.rows;
   } catch (err) {
-    throw new Error("Error fetching campaigns: " + err.message); // Handle any errors
+    throw new Error("Error fetching campaigns: " + err.message);
   }
 };
 
-module.exports = { createCampaign, getCampaigns };
+const deleteCampaignById = async (id) => {
+  try {
+    const result = await db.query("DELETE FROM campaigns WHERE id = $1", [id]);
+
+    return result;
+  } catch (err) {
+    throw new Error("Error deleting campaign: " + err.message);
+  }
+};
+
+module.exports = { createCampaign, getCampaigns, deleteCampaignById };
