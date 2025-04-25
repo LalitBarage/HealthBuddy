@@ -11,7 +11,7 @@ const createCampaign = async (
 ) => {
   try {
     const result = await db.query(
-      "INSERT INTO campaigns (title, description, image_url, start_date, end_date, link, sub_dist) VALUES ($1, $2, $3, $4, $5, $6, $8) RETURNING *",
+      "INSERT INTO campaigns (title, description, image_url, start_date, end_date, link, sub_dist) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
       [name, description, image_url, startDate, endDate, link, subdist]
     );
 
