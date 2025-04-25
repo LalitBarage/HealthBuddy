@@ -1,5 +1,14 @@
 require("dotenv").config();
 const axios = require("axios");
+const twilio = require("twilio");
+
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
+const client = twilio(accountSid, authToken);
+
+const otpStore = new Map();
+
 const {
   createEnquiry,
   getEnquiries,
@@ -178,6 +187,57 @@ const getAllEnquiriesByPid = async (req, res) => {
   }
 };
 
+const getOtp = async (req, res) => {
+  const { pid } = req.params;
+
+  try {
+    const result = await getUserMobileNo(pid);
+
+    if (!result) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const OTP = Math.floor(100000 + Math.random() * 900000);
+    const smsText = `Your OTP is ${OTP}. Please do not share it with anyone.`;
+
+    await client.messages.create({
+      body: smsText,
+      from: twilioPhone,
+      to: `+91${result}`,
+    });
+
+    const expiresAt = Date.now() + 5 * 60 * 1000;
+    otpStore.set(pid, { otp: OTP.toString(), expiresAt });
+
+    return res.status(200).json({ message: "OTP sent successfully" });
+  } catch (error) {
+    console.error("Error sending OTP:", error.message);
+    return res.status(500).json({ error: "Failed to send OTP" });
+  }
+};
+
+const verifyOtp = (req, res) => {
+  const { pid, otp } = req.body;
+
+  const stored = otpStore.get(pid);
+
+  if (!stored) {
+    return res.status(400).json({ message: "No OTP found or OTP expired" });
+  }
+
+  if (Date.now() > stored.expiresAt) {
+    otpStore.delete(pid); // Expired OTP
+    return res.status(400).json({ message: "OTP expired" });
+  }
+
+  if (stored.otp === otp) {
+    otpStore.delete(pid); // Remove used OTP
+    return res.status(200).json({ message: "OTP verified successfully" });
+  } else {
+    return res.status(400).json({ message: "Incorrect OTP" });
+  }
+};
+
 module.exports = {
   addEnquiry,
   getAllEnquiries,
@@ -186,4 +246,6 @@ module.exports = {
   getAllEnquiriesByHid,
   deleteEnquiry,
   getAllEnquiriesByPid,
+  getOtp,
+  verifyOtp,
 };

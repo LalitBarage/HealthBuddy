@@ -8,6 +8,8 @@ const {
   getAllEnquiriesByHid,
   deleteEnquiry,
   getAllEnquiriesByPid,
+  getOtp,
+  verifyOtp,
 } = require("../controllers/enquiryController");
 
 router.post("/addEnquiry", addEnquiry);
@@ -17,5 +19,8 @@ router.get("/getUserMobile/:pid", getUserMobile);
 router.get("/getAllEnquiries/:hid", getAllEnquiriesByHid);
 router.delete("/deleteEnquiry/:eid", deleteEnquiry);
 router.get("/getEnquiryByPid/:pid", getAllEnquiriesByPid);
+
+router.get("/getOtp/:pid", getOtp);
+router.get("/checkOtp/:pid", verifyOtp);
 
 module.exports = router;
