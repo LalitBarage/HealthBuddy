@@ -1,3 +1,5 @@
+require("dotenv").config();
+const axios = require("axios");
 const {
   findSchemeBySubDist,
   updateSchemeStatusById,
@@ -5,6 +7,7 @@ const {
   updateHospitalStatusById,
   addAlertToDatabase,
   findDiseaseCountBySubDist,
+  addNewScheme,
 } = require("../models/adminModel");
 
 const getSchemeBySubDist = async (req, res) => {
@@ -142,6 +145,57 @@ const getDiseaseCount = async (req, res) => {
   }
 };
 
+const addScheme = async (req, res) => {
+  const { pincode } = req.params;
+  const { scname, elligibility, description } = req.body;
+
+  if (!scname || !pincode || !elligibility || !description) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  let sub_dist, dist, state;
+
+  try {
+    const postOfficeURL = `${process.env.PINCODE_API}/${pincode}`;
+    const response = await axios.get(postOfficeURL);
+    const postOffices = response.data[0]?.PostOffice;
+
+    if (!postOffices || postOffices.length === 0) {
+      return res.status(404).json({ error: "Invalid or unsupported pincode" });
+    }
+
+    const locationInfo = postOffices[0];
+    sub_dist = locationInfo.Block;
+    dist = locationInfo.District;
+    state = locationInfo.State;
+  } catch (error) {
+    console.error("Pincode API Error:", error.message);
+    return res
+      .status(500)
+      .json({ error: "Failed to fetch location from pincode" });
+  }
+
+  try {
+    const scheme = await addNewScheme({
+      scname,
+      elligibility,
+      description,
+      sub_dist,
+      dist,
+      state,
+    });
+
+    if (!scheme) {
+      return res.status(404).json({ message: "Failed to add scheme" });
+    }
+
+    return res.status(200).json({ message: "Scheme added successfully" });
+  } catch (error) {
+    console.error("Error adding scheme:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   getSchemeBySubDist,
   updateSchemeStatus,
@@ -150,4 +204,5 @@ module.exports = {
   addAlert,
   getDiseaseCount,
   deleteAlert,
+  addScheme,
 };

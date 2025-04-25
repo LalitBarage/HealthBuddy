@@ -87,6 +87,26 @@ const findDiseaseCountBySubDist = async (sub_dist) => {
   }
 };
 
+const addNewScheme = async (
+  scname,
+  elligibility,
+  description,
+  sub_dist,
+  dist,
+  state
+) => {
+  try {
+    const result = await db.query(
+      `INSERT INTO schemes (scname, elligibility, description, sub_dist, dist, state) VALUES ($1, $2, $3, $4, $5, $6)`,
+      [scname, elligibility, description, sub_dist, dist, state]
+    );
+    return result;
+  } catch (error) {
+    console.error("Error in addNewScheme:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   findSchemeBySubDist,
   updateSchemeStatusById,
@@ -95,4 +115,5 @@ module.exports = {
   addAlertToDatabase,
   findDiseaseCountBySubDist,
   deleteAlertById,
+  addNewScheme,
 };
