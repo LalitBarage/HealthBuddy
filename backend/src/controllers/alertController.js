@@ -39,7 +39,8 @@ const addCampaign = async (req, res) => {
 
 const getCampaignsController = async (req, res) => {
   try {
-    const campaigns = await getCampaigns();
+    const { subdist } = req.params;
+    const campaigns = await getCampaigns(subdist);
 
     if (campaigns.length === 0) {
       return res.status(404).json({ error: "No campaigns found" });

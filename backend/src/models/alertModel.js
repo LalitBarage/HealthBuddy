@@ -21,9 +21,12 @@ const createCampaign = async (
   }
 };
 
-const getCampaigns = async () => {
+const getCampaigns = async (subdist) => {
   try {
-    const result = await db.query("SELECT * FROM campaigns");
+    const result = await db.query(
+      "SELECT * FROM campaigns WHERE sub_dist = $1",
+      [subdist]
+    );
     return result.rows;
   } catch (err) {
     throw new Error("Error fetching campaigns: " + err.message);
