@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
+import { FiTrash2 } from "react-icons/fi";
+import axios from "axios";
 
 const Alert = () => {
   const [message, setMessage] = useState("");
   const [severity, setSeverity] = useState("low");
-  const [location, setPincode] = useState("");
+
   const [pastAlerts, setPastAlerts] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [alerting, setAlerting] = useState(false);
@@ -29,7 +31,7 @@ const Alert = () => {
         }
       );
       const data = await response.json();
-      setPastAlerts(data.alerts);
+      setPastAlerts(data.alerts || []);
     } catch (error) {
       console.error("Error fetching past alerts:", error);
     }
@@ -49,6 +51,9 @@ const Alert = () => {
     currentPage * itemsPerPage
   );
 
+  const user = JSON.parse(localStorage.getItem("user"));
+  const sub_dist = user.sub_dist;
+
   const handleSubmit = async () => {
     if (!message || !severity || !location) return;
 
@@ -62,7 +67,7 @@ const Alert = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ message, severity, location }),
+        body: JSON.stringify({ message, severity, location: sub_dist }),
       });
 
       if (!res.ok) {
@@ -74,7 +79,7 @@ const Alert = () => {
       fetchPastAlerts();
       setMessage("");
       setSeverity("low");
-      setPincode("");
+
       toast.success("Alert submitted successfully!");
       setShowModal(false);
     } catch (error) {
@@ -97,8 +102,34 @@ const Alert = () => {
     }
   };
 
+  const handleDelete = async (alertId) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      // Show confirmation before deletion
+      if (window.confirm("Are you sure you want to delete this Alert?")) {
+        await axios.delete(
+          `http://localhost:3000/api/admin/deleteAlert/${alertId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        // Filter out the deleted campaign from the state
+        setPastAlerts(pastAlerts.filter((alert) => alert.id !== alertId));
+
+        toast.success("Alert deleted successfully!");
+      }
+    } catch (error) {
+      console.error("Error deleting Alert", error);
+      toast.error("Failed to delete Alert. Please try again.");
+    }
+  };
+
   return (
-    <div className="p-6 mx-auto bg-white max-w-full min-h-screen shadow-xl">
+    <div className="px-10 py-4 mx-auto bg-white max-w-full min-h-screen shadow-xl">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-[#0990A5]">Alert Management</h1>
         <button
@@ -117,7 +148,7 @@ const Alert = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 my-4">
           <input
             type="text"
-            placeholder="Search campaigns by title..."
+            placeholder="Search Alert by title..."
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
@@ -126,12 +157,12 @@ const Alert = () => {
             className="w-full md:w-1/2 p-2 border border-gray-300 rounded"
           />
         </div>
-        {paginatedAlerts.length > 0 ? (
-          <ul className="space-y-4">
+        {filteredAlerts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {paginatedAlerts.map((alert, index) => (
-              <li
+              <div
                 key={index}
-                className="p-4 rounded-lg shadow-md border bg-gray-50 border-gray-200"
+                className="relative p-4 rounded-lg shadow-md border bg-gray-50 border-gray-200"
               >
                 <div className="flex justify-between items-center mb-1">
                   <span className="font-semibold text-lg text-gray-800">
@@ -144,9 +175,17 @@ const Alert = () => {
                 <p className="text-sm text-gray-600">
                   Location: {alert.location}
                 </p>
-              </li>
+
+                {/* Delete Button */}
+                <button
+                  onClick={() => handleDelete(alert.id)}
+                  className="absolute bottom-3 right-3 p-2 text-red-700 mt-8"
+                >
+                  <FiTrash2 size={18} />
+                </button>
+              </div>
             ))}
-          </ul>
+          </div>
         ) : (
           <p className="text-gray-600">No past alerts available.</p>
         )}
@@ -204,11 +243,11 @@ const Alert = () => {
               </select>
               <input
                 type="text"
-                className="w-full p-3 border border-[#0990A5] rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#0990A5]"
-                placeholder="Enter location"
-                value={location}
-                onChange={(e) => setPincode(e.target.value)}
+                className="w-full p-3 border border-[#0990A5] rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed"
+                value={sub_dist}
+                readOnly
               />
+
               <button
                 onClick={handleSubmit}
                 disabled={alerting}

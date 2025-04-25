@@ -41,7 +41,7 @@ const HospitalRequest = () => {
         const subdist = user.sub_dist;
 
         const res = await fetch(
-          `http://localhost:3000/api/admin/getHospitalRequests/Chiplun`,
+          `http://localhost:3000/api/admin/getHospitalRequests/${subdist}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -127,7 +127,7 @@ const HospitalRequest = () => {
   const acceptedRequests = requests.filter((r) => r.status !== "Pending");
 
   return (
-    <div className="p-6 bg-white min-h-screen text-black">
+    <div className="px-10 py-4 bg-white min-h-screen text-black">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold text-[#0990a5]">
           Pending Hospitals Requests

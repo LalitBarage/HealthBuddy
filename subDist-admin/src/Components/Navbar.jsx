@@ -27,10 +27,10 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white text-[#0ba9bb] px-6 py-4 shadow-md relative z-50">
+    <nav className="bg-white text-[#0ba9bb] px-10 py-4 shadow-md relative z-50">
       <div className="container mx-auto flex items-center justify-between">
         {/* Left: Logo */}
-        <div className="text-xl font-bold">HospitalAdmin</div>
+        <div className="text-xl font-bold">Admin</div>
 
         {/* Center: Nav Links (Hidden on small screens) */}
         <div className="hidden md:flex space-x-8 text-lg font-medium">
@@ -38,7 +38,10 @@ const Navbar = () => {
             Home
           </Link>
           <Link to="/request" className="hover:underline">
-            Requests
+            Scheme Requests
+          </Link>
+          <Link to="/scheme" className="hover:underline">
+            Schemes
           </Link>
           <Link to="/hosprequest" className="hover:underline">
             Hospital Request
@@ -88,7 +91,7 @@ const Navbar = () => {
             className="block"
             onClick={() => setMenuOpen(false)}
           >
-            Requests
+            Scheme Requests
           </Link>
           <Link
             to="/hosprequest"

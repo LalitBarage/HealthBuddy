@@ -11,6 +11,7 @@ import HospitalRequest from "./Pages/HospitalRequest";
 import axios from "axios";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Scheme from "./Pages/Scheme";
 
 function App() {
   const { isAuthenticated, setIsAuthenticated, user, setUser } =
@@ -52,6 +53,10 @@ function App() {
           <Route
             path="/request"
             element={isAuthenticated ? <Request /> : <Login />}
+          />
+          <Route
+            path="/scheme"
+            element={isAuthenticated ? <Scheme /> : <Login />}
           />
           <Route
             path="/campaign"

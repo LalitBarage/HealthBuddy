@@ -58,10 +58,9 @@ const Campaign = () => {
   );
 
   const totalPages = Math.ceil(filteredCampaigns.length / itemsPerPage);
-  const paginatedCampaigns = filteredCampaigns.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const paginatedCampaigns = filteredCampaigns
+    .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+    .reverse();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -168,8 +167,10 @@ const Campaign = () => {
 
   return (
     <>
-      <div className="p-6 max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Manage Campaigns</h1>
+      <div className="px-10 py-4 bg-white min-h-screen text-black">
+        <h1 className="text-3xl font-bold mb-6 text-[#0990a5]">
+          Manage Campaigns
+        </h1>
 
         <button
           onClick={() => setShowPopup(true)}
@@ -291,8 +292,10 @@ const Campaign = () => {
           </div>
         )}
 
-        <h2 className="text-2xl font-semibold mt-8 mb-4">Existing Campaigns</h2>
-        <div className="grid gap-4">
+        <h2 className="text-2xl font-semibold mt-8 mb-4 text-[#0990a5]">
+          Existing Campaigns
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {paginatedCampaigns.map((campaign) => (
             <div
               key={campaign.id}
@@ -328,7 +331,7 @@ const Campaign = () => {
               {/* Delete Button */}
               <button
                 onClick={() => handleDelete(campaign.id)}
-                className="absolute bottom-3 right-3 p-3 bg-red-600 text-white rounded-full hover:bg-red-700"
+                className="absolute bottom-3 right-3 p-3 text-red-700"
               >
                 <FiTrash2 size={20} /> {/* Display trash icon */}
               </button>

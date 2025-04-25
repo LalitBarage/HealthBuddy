@@ -42,8 +42,10 @@ export const LoginScreen = ({ onLoginSuccess }) => {
         console.log(data.token);
         await AsyncStorage.setItem("id", String(data.user?.pid));
         await AsyncStorage.setItem("adhar", String(data.user?.paddhar));
+        await AsyncStorage.setItem("sub_dist", String(data.user?.sub_dist));
         console.log("User ID:", data.user?.pid);
         console.log("User Adhar:", data.user?.paddhar);
+
         navigation.navigate("Main");
       } else {
         Alert.alert("Login Failed", data.message || "Something went wrong");

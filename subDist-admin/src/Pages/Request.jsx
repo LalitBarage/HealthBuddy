@@ -137,7 +137,7 @@ const Request = () => {
   );
 
   return (
-    <div className="p-6 bg-white min-h-screen text-black">
+    <div className="px-10 py-4 bg-white min-h-screen text-black">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold text-[#0990a5]">
           Pending Scheme Requests
