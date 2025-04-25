@@ -21,6 +21,6 @@ router.delete("/deleteEnquiry/:eid", deleteEnquiry);
 router.get("/getEnquiryByPid/:pid", getAllEnquiriesByPid);
 
 router.get("/getOtp/:pid", getOtp);
-router.get("/checkOtp/:pid/:otp", verifyOtp);
+router.post("/checkOtp/:pid/:otp", verifyOtp);
 
 module.exports = router;
