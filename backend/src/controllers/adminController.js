@@ -8,6 +8,7 @@ const {
   addAlertToDatabase,
   findDiseaseCountBySubDist,
   addNewScheme,
+  deleteAlertById,
 } = require("../models/adminModel");
 
 const getSchemeBySubDist = async (req, res) => {
