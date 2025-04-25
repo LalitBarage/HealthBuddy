@@ -7,7 +7,7 @@ const {
 } = require("../controllers/alertController");
 const router = express.Router();
 
-router.post("/addCampaign", addCampaign);
+router.post("/addCampaign/:subdist", addCampaign);
 router.get("/getCampaigns", getCampaignsController);
 router.delete("/deleteCampaign/:id", deleteCampaign);
 router.get("/getAlerts/:location", getAlerts);

@@ -6,6 +6,7 @@ const {
 } = require("../models/alertModel");
 
 const addCampaign = async (req, res) => {
+  const { subdist } = req.params;
   const { name, description, image_url, startDate, endDate, link } = req.body;
 
   try {
@@ -26,7 +27,8 @@ const addCampaign = async (req, res) => {
       image_url,
       startDate,
       endDate,
-      link
+      link,
+      subdist
     );
 
     res.status(201).json({ campaign });
