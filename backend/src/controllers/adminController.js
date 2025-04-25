@@ -210,7 +210,7 @@ const addScheme = async (req, res) => {
       await client.messages.create({
         body: smsText,
         from: twilioPhone,
-        to: patient.mobile,
+        to: `+91${patient.pmobileno}`,
       });
     }
 

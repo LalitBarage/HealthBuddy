@@ -24,7 +24,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/enquiry", verifyToken, enquiryRoutes);
 app.use("/api/scheme", verifyToken, schemeRoutes);
 app.use("/api/alert", verifyToken, alertRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/api/admin", verifyToken, adminRoutes);
 
 const PORT = process.env.PORT || 5000;
 
