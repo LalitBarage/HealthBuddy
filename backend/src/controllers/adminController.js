@@ -109,6 +109,21 @@ const addAlert = async (req, res) => {
   }
 };
 
+const deleteAlert = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await deleteAlertById(id);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Alert not found" });
+    }
+
+    return res.status(200).json({ message: "Alert deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting alert:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 const getDiseaseCount = async (req, res) => {
   const { sub_dist } = req.params;
   try {
@@ -134,4 +149,5 @@ module.exports = {
   updateHospitalStatus,
   addAlert,
   getDiseaseCount,
+  deleteAlert,
 };

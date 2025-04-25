@@ -65,6 +65,16 @@ const addAlertToDatabase = async (message, severity, location) => {
   }
 };
 
+const deleteAlertById = async (id) => {
+  try {
+    const result = await db.query(`DELETE FROM alerts WHERE id = $1`, [id]);
+    return result;
+  } catch (error) {
+    console.error("Error in deleteAlertById:", error);
+    throw error;
+  }
+};
+
 const findDiseaseCountBySubDist = async (sub_dist) => {
   try {
     const result = await db.query(`SELECT * FROM enquiry WHERE sub_dist = $1`, [
@@ -84,4 +94,5 @@ module.exports = {
   updateHospitalStatusById,
   addAlertToDatabase,
   findDiseaseCountBySubDist,
+  deleteAlertById,
 };

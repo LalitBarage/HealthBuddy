@@ -55,9 +55,22 @@ const getAlertsByLocation = async (location) => {
   }
 };
 
+const getAlertNotificationByLocation = async (location) => {
+  try {
+    const result = await db.query(
+      "SELECT * FROM alerts WHERE location = $1 AND created_at >= NOW() - INTERVAL '7 days'",
+      [location]
+    );
+    return result.rows;
+  } catch (err) {
+    throw new Error("Error fetching alerts: " + err.message);
+  }
+};
+
 module.exports = {
   createCampaign,
   getCampaigns,
   deleteCampaignById,
   getAlertsByLocation,
+  getAlertNotificationByLocation,
 };

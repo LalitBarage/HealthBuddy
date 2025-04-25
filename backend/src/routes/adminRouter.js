@@ -6,6 +6,7 @@ const {
   updateHospitalStatus,
   addAlert,
   getDiseaseCount,
+  deleteAlert,
 } = require("../controllers/adminController");
 const router = express.Router();
 
@@ -16,7 +17,7 @@ router.get("/getHospitalRequests/:subDist", getHopitalBySubDist);
 router.put("/updateHospitalStatus/:hid", updateHospitalStatus);
 
 router.post("/addAlert", addAlert);
-
+router.delete("/deleteAlert/:id", deleteAlert);
 router.get("/diseaseCount/:sub_dist", getDiseaseCount);
 
 module.exports = router;
