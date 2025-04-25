@@ -67,10 +67,23 @@ const getAlertNotificationByLocation = async (location) => {
   }
 };
 
+const getBannerByLocation = async (location) => {
+  try {
+    const result = await db.query(
+      "SELECT image_url FROM campaigns WHERE sub_dist = $1 AND created_at >= NOW() - INTERVAL '7 days'",
+      [location]
+    );
+    return result.rows;
+  } catch (err) {
+    throw new Error("Error fetching alerts: " + err.message);
+  }
+};
+
 module.exports = {
   createCampaign,
   getCampaigns,
   deleteCampaignById,
   getAlertsByLocation,
   getAlertNotificationByLocation,
+  getBannerByLocation,
 };

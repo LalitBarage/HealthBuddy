@@ -5,6 +5,7 @@ const {
   deleteCampaign,
   getAlerts,
   getAlertNotification,
+  getBanner,
 } = require("../controllers/alertController");
 const router = express.Router();
 
@@ -13,5 +14,6 @@ router.get("/getCampaigns/:subdist", getCampaignsController);
 router.delete("/deleteCampaign/:id", deleteCampaign);
 router.get("/getAlerts/:location", getAlerts);
 router.get("/getAlertNotification/:location", getAlertNotification);
+router.get("/getBanner/:location", getBanner);
 
 module.exports = router;
