@@ -10,6 +10,7 @@ const {
   addNewScheme,
   deleteAlertById,
   hideById,
+  deleteSchemeById,
 } = require("../models/adminModel");
 
 const getSchemeBySubDist = async (req, res) => {
@@ -222,6 +223,22 @@ const hideScheme = async (req, res) => {
   }
 };
 
+const deleteScheme = async (req, res) => {
+  const { scid } = req.params;
+
+  try {
+    const result = await deleteSchemeById(scid);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Scheme not found" });
+    }
+
+    return res.status(200).json({ message: "Scheme deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting scheme:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   getSchemeBySubDist,
   updateSchemeStatus,
@@ -232,4 +249,5 @@ module.exports = {
   deleteAlert,
   addScheme,
   hideScheme,
+  deleteScheme,
 };

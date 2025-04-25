@@ -120,6 +120,18 @@ const hideById = async (scid, status) => {
   }
 };
 
+const deleteSchemeById = async (scid) => {
+  try {
+    const result = await db.query(`DELETE FROM schemes WHERE scid = $1`, [
+      scid,
+    ]);
+    return result;
+  } catch (error) {
+    console.error("Error in deleteSchemeById:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   findSchemeBySubDist,
   updateSchemeStatusById,
@@ -130,4 +142,5 @@ module.exports = {
   deleteAlertById,
   addNewScheme,
   hideById,
+  deleteSchemeById,
 };
