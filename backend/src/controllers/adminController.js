@@ -150,9 +150,9 @@ const getDiseaseCount = async (req, res) => {
 };
 
 const addScheme = async (req, res) => {
-  const { scname, elligibility, description, pincode } = req.body;
+  const { scname, eligibility, description, pincode } = req.body;
 
-  if (!scname || !pincode || !elligibility || !description) {
+  if (!scname || !pincode || !eligibility || !description) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -181,7 +181,7 @@ const addScheme = async (req, res) => {
   try {
     const scheme = await addNewScheme({
       scname,
-      elligibility,
+      eligibility,
       description,
       sub_dist,
       dist,

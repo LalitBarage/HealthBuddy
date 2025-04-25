@@ -89,7 +89,7 @@ const findDiseaseCountBySubDist = async (sub_dist) => {
 
 const addNewScheme = async (
   scname,
-  elligibility,
+  eligibility,
   description,
   sub_dist,
   dist,
@@ -97,8 +97,8 @@ const addNewScheme = async (
 ) => {
   try {
     const result = await db.query(
-      `INSERT INTO schemes (scname, elligibility, description, sub_dist, dist, state) VALUES ($1, $2, $3, $4, $5, $6)`,
-      [scname, elligibility, description, sub_dist, dist, state]
+      `INSERT INTO schemes (scname, eligibility, description, sub_dist, dist, state) VALUES ($1, $2, $3, $4, $5, $6)`,
+      [scname, eligibility, description, sub_dist, dist, state]
     );
     return result;
   } catch (error) {
