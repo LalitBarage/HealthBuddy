@@ -20,8 +20,10 @@ const Home = () => {
   useEffect(() => {
     const fetchDiseaseData = async () => {
       try {
+        const user = JSON.parse(localStorage.getItem("user"));
+        const location = user.sub_dist;
         const res = await fetch(
-          "http://localhost:3000/api/admin/diseaseCount/Chiplun",
+          `http://localhost:3000/api/admin/diseaseCount/${location}`,
           {
             headers: {
               "Content-Type": "application/json",

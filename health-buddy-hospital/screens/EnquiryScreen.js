@@ -85,7 +85,7 @@ export const EnquiryScreen = () => {
         const token = await AsyncStorage.getItem("userToken");
         console.log(API_URL);
         const response = await fetch(
-          `http://192.168.63.106:3000/api/enquiry/getAllEnquiries/${id}`,
+          `http://192.168.123.106:3000/api/enquiry/getAllEnquiries/${id}`,
           {
             method: "GET",
             headers: {
@@ -152,7 +152,7 @@ export const EnquiryScreen = () => {
     console.log("New Entry:", newEntry);
     try {
       const response = await fetch(
-        `http://192.168.63.106:3000/api/enquiry/addEnquiry`,
+        `http://192.168.123.106:3000/api/enquiry/addEnquiry`,
         {
           method: "POST",
           headers: {
@@ -231,7 +231,7 @@ export const EnquiryScreen = () => {
       if (deletePendingId) {
         try {
           const response = await fetch(
-            `http://192.168.63.106:3000/api/enquiry/deleteEnquiry/${deletePendingId}`,
+            `http://192.168.123.106:3000/api/enquiry/deleteEnquiry/${deletePendingId}`,
             {
               method: "DELETE",
               headers: {
@@ -292,7 +292,7 @@ export const EnquiryScreen = () => {
       };
 
       const response = await fetch(
-        `http://192.168.63.106:3000/api/enquiry/updateEnquiry/${selectedEnquiry.id}`,
+        `http://192.168.123.106:3000/api/enquiry/updateEnquiry/${selectedEnquiry.id}`,
         {
           method: "PUT",
           headers: {

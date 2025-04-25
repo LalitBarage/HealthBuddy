@@ -20,7 +20,7 @@ import {
 } from "react-native-paper";
 import * as DocumentPicker from "expo-document-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { API_URL, CLOUDINARY_URL, UPLOAD_PRESET } from "@env";
+import { API_URL, UPLOAD_PRESET } from "@env";
 
 const healthSchemes = [
   { id: "1", name: "Ayushman Bharat - Pradhan Mantri Jan Arogya Yojana" },
@@ -60,6 +60,8 @@ export const SchemeScreen = () => {
     bank: "",
   });
 
+  const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/du2pijo5y/raw/upload";
+
   const uploadToCloudinary = async (label) => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -78,6 +80,7 @@ export const SchemeScreen = () => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", UPLOAD_PRESET);
+      console.log(CLOUDINARY_URL);
 
       const response = await fetch(CLOUDINARY_URL, {
         method: "POST",
@@ -111,7 +114,7 @@ export const SchemeScreen = () => {
         const token = await AsyncStorage.getItem("userToken");
 
         const response = await fetch(
-          `http://192.168.63.106:3000/api/scheme/getAppliedSchemeByHid/${id}`,
+          `http://192.168.123.106:3000/api/scheme/getAppliedSchemeByHid/${id}`,
           {
             method: "GET",
             headers: {
@@ -182,7 +185,7 @@ export const SchemeScreen = () => {
 
     try {
       const res = await fetch(
-        `http://192.168.63.106:3000/api/scheme/applyScheme`,
+        `http://192.168.123.106:3000/api/scheme/applyScheme`,
         {
           method: "POST",
           headers: {
@@ -242,7 +245,7 @@ export const SchemeScreen = () => {
       if (deletePendingId) {
         try {
           const response = await fetch(
-            `http://192.168.63.106:3000/api/scheme/deleteAppliedScheme/${deletePendingId}`,
+            `http://192.168.123.106:3000/api/scheme/deleteAppliedScheme/${deletePendingId}`,
             {
               method: "DELETE",
               headers: {
@@ -291,7 +294,7 @@ export const SchemeScreen = () => {
       };
       console.log(updateScheme);
       const response = await fetch(
-        `http://192.168.63.106:3000/api/scheme/updateAppliedScheme/${selectedSchemeId.apscid}`,
+        `http://192.168.123.106:3000/api/scheme/updateAppliedScheme/${selectedSchemeId.apscid}`,
         {
           method: "PUT",
           headers: {

@@ -23,7 +23,7 @@ export const LoginScreen = ({ onLoginSuccess }) => {
       console.log("Payload:", payload);
       // console.log(API_URL);
       const response = await fetch(
-        "http://192.168.63.106:3000/api/auth/loginUser",
+        "http://192.168.123.106:3000/api/auth/loginUser",
         {
           method: "POST",
           headers: {

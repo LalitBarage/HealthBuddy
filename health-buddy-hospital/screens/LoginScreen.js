@@ -20,10 +20,11 @@ export const LoginScreen = ({ onLoginSuccess }) => {
       email,
       password,
     };
+    console.log("Payload:", payload);
 
     try {
       const response = await fetch(
-        "http://192.168.63.106:3000/api/auth/loginHospital",
+        "http://192.168.123.106:3000/api/auth/loginHospital",
         {
           method: "POST",
           headers: {
