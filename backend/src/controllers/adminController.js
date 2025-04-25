@@ -1,5 +1,12 @@
 require("dotenv").config();
+const twilio = require("twilio");
 const axios = require("axios");
+
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
+const client = twilio(accountSid, authToken);
+
 const {
   findSchemeBySubDist,
   updateSchemeStatusById,
@@ -179,20 +186,37 @@ const addScheme = async (req, res) => {
   }
 
   try {
-    const scheme = await addNewScheme({
+    // Insert new scheme and get matching patient mobile numbers
+    const patientMobiles = await addNewScheme(
       scname,
       eligibility,
       description,
       sub_dist,
       dist,
-      state,
-    });
+      state
+    );
 
-    if (!scheme) {
-      return res.status(404).json({ message: "Failed to add scheme" });
+    if (!patientMobiles || patientMobiles.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Scheme added but no patients found" });
     }
 
-    return res.status(200).json({ message: "Scheme added successfully" });
+    // SMS message content
+    const smsText = `New scheme "${scname}" available in your area (${sub_dist}). Check eligibility and apply soon.`;
+
+    // Send SMS to all matching patients
+    for (const patient of patientMobiles) {
+      await client.messages.create({
+        body: smsText,
+        from: twilioPhone,
+        to: patient.mobile,
+      });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Scheme added and SMS sent to patients" });
   } catch (error) {
     console.error("Error adding scheme:", error);
     return res.status(500).json({ message: "Internal server error" });

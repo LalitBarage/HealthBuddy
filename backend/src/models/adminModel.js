@@ -95,15 +95,31 @@ const addNewScheme = async (
   dist,
   state
 ) => {
+  const client = await db.connect();
   try {
-    const result = await db.query(
-      `INSERT INTO schemes (scname, eligibility, description, sub_dist, dist, state) VALUES ($1, $2, $3, $4, $5, $6)`,
+    await client.query("BEGIN");
+
+    // Step 1: Insert new scheme
+    await client.query(
+      `INSERT INTO schemes (scname, eligibility, description, sub_dist, dist, state) 
+       VALUES ($1, $2, $3, $4, $5, $6)`,
       [scname, eligibility, description, sub_dist, dist, state]
     );
-    return result;
+
+    // Step 2: Fetch mobile numbers from patients in the same sub_dist
+    const result = await client.query(
+      `SELECT pmobileno FROM patient WHERE sub_dist = $1`,
+      [sub_dist]
+    );
+
+    await client.query("COMMIT");
+    return result.rows; // array of mobile numbers
   } catch (error) {
+    await client.query("ROLLBACK");
     console.error("Error in addNewScheme:", error);
     throw error;
+  } finally {
+    client.release();
   }
 };
 
