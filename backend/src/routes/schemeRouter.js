@@ -5,6 +5,7 @@ const {
   updateAppliedScheme,
   deleteAppliedScheme,
   getAppliedSchemeHospital,
+  getSchemes,
 } = require("../controllers/schemeController");
 const router = express.Router();
 
@@ -13,5 +14,6 @@ router.put("/updateAppliedScheme/:apscid", updateAppliedScheme);
 router.get("/getAppliedSchemePid/:pid", getAppliedScheme);
 router.delete("/deleteAppliedScheme/:apscid", deleteAppliedScheme);
 router.get("/getAppliedSchemeByHid/:hid", getAppliedSchemeHospital);
+router.get("/getSchemes/:location", getSchemes);
 
 module.exports = router;

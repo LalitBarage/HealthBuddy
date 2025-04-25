@@ -7,6 +7,7 @@ const {
   updateAppliedSchemeDoc,
   deleteAppliedSchemeId,
   getAppliedSchemeByHid,
+  getSchemeByLocation,
 } = require("../models/schemeModel");
 
 const appliedScheme = async (req, res) => {
@@ -170,10 +171,32 @@ const getAppliedSchemeHospital = async (req, res) => {
   }
 };
 
+const getSchemes = async (req, res) => {
+  const { location } = req.params;
+
+  if (!location) {
+    return res.status(400).json({ message: "Location is required" });
+  }
+
+  try {
+    const schemes = await getSchemeByLocation(location);
+    if (schemes.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No schemes found for this location" });
+    }
+    return res.status(200).json(schemes);
+  } catch (error) {
+    console.error("Error fetching schemes:", error.message);
+    return res.status(500).json({ error: "Failed to fetch schemes" });
+  }
+};
+
 module.exports = {
   appliedScheme,
   getAppliedScheme,
   updateAppliedScheme,
   deleteAppliedScheme,
   getAppliedSchemeHospital,
+  getSchemes,
 };

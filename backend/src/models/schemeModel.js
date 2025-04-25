@@ -79,6 +79,13 @@ const getAppliedSchemeByHid = async (hid) => {
   return result.rows;
 };
 
+const getSchemeByLocation = async (location) => {
+  const result = await db.query("SELECT * FROM schemes WHERE sub_dist = $1", [
+    location,
+  ]);
+  return result.rows;
+};
+
 module.exports = {
   addApplyScheme,
   getAppliedSchemeByPid,
@@ -86,4 +93,5 @@ module.exports = {
   updateAppliedSchemeDoc,
   deleteAppliedSchemeId,
   getAppliedSchemeByHid,
+  getSchemeByLocation,
 };
