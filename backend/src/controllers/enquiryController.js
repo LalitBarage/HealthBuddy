@@ -217,7 +217,7 @@ const getOtp = async (req, res) => {
 };
 
 const verifyOtp = (req, res) => {
-  const { pid, otp } = req.body;
+  const { pid, otp } = req.params;
 
   const stored = otpStore.get(pid);
 
