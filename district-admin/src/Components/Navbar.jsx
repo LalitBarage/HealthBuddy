@@ -2,7 +2,6 @@ import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Context } from "../main";
-import { toast } from "react-toastify";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -13,7 +12,6 @@ const Navbar = () => {
     // Clear localStorage
     localStorage.removeItem("user");
     localStorage.removeItem("isAuthenticated");
-    toast.success("Logout successful!");
 
     // Reset auth state
     setIsAuthenticated(false);

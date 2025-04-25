@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { toast } from "react-toastify";
-import { ToastContainer } from "react-toastify";
 
 const Alert = () => {
   const [message, setMessage] = useState("");
@@ -8,10 +6,6 @@ const Alert = () => {
   const [location, setPincode] = useState("");
   const [pastAlerts, setPastAlerts] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [alerting, setAlerting] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
 
   const fetchPastAlerts = async () => {
     try {
@@ -39,50 +33,26 @@ const Alert = () => {
     fetchPastAlerts();
   }, []);
 
-  const filteredAlerts = pastAlerts.filter((c) =>
-    c.message.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const totalPages = Math.ceil(filteredAlerts.length / itemsPerPage);
-  const paginatedAlerts = filteredAlerts.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!message || !severity || !location) return;
 
-    const token = localStorage.getItem("token");
-
-    try {
-      setAlerting(true);
-      const res = await fetch("http://localhost:3000/api/admin/addAlert", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ message, severity, location }),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to submit alert");
-      }
-
-      await res.json();
-      fetchPastAlerts();
-      setMessage("");
-      setSeverity("low");
-      setPincode("");
-      toast.success("Alert submitted successfully!");
-      setShowModal(false);
-    } catch (error) {
-      console.error("Error submitting alert:", error);
-      toast.error("Error submitting alert. Please try again.");
-    } finally {
-      setAlerting(false);
-    }
+    fetch("http://localhost:3000/api/admin/addAlert", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({ message, severity, location }),
+    })
+      .then((res) => res.json())
+      .then(() => {
+        fetchPastAlerts();
+        setMessage("");
+        setSeverity("low");
+        setPincode("");
+        setShowModal(false);
+      })
+      .catch((error) => console.error("Error submitting alert:", error));
   };
 
   const getSeverityBadge = (level) => {
@@ -114,21 +84,9 @@ const Alert = () => {
         <h2 className="text-2xl font-semibold text-[#0990A5] mb-4">
           Past Alerts
         </h2>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 my-4">
-          <input
-            type="text"
-            placeholder="Search campaigns by title..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setCurrentPage(1); // reset to first page on search
-            }}
-            className="w-full md:w-1/2 p-2 border border-gray-300 rounded"
-          />
-        </div>
-        {paginatedAlerts.length > 0 ? (
+        {pastAlerts.length > 0 ? (
           <ul className="space-y-4">
-            {paginatedAlerts.map((alert, index) => (
+            {pastAlerts.map((alert, index) => (
               <li
                 key={index}
                 className="p-4 rounded-lg shadow-md border bg-gray-50 border-gray-200"
@@ -151,31 +109,10 @@ const Alert = () => {
           <p className="text-gray-600">No past alerts available.</p>
         )}
       </div>
-      <div className="flex justify-center items-center mt-8">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-1 bg-[#0990A5] text-white rounded disabled:opacity-50"
-          >
-            Prev
-          </button>
-          <span className="text-sm">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 bg-[#0990A5] text-white rounded disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
-      </div>
 
       {/* Add Alert Modal */}
       {showModal && (
-        <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center">
+        <div className="fixed inset-0 backdrop-blur-2xl bg-opacity-40 z-50 flex items-center justify-center">
           <div className="bg-white p-6 w-[90%] md:w-[500px] rounded-lg shadow-lg relative">
             <button
               className="absolute top-2 right-3 text-xl text-red-600 font-bold"
@@ -211,57 +148,14 @@ const Alert = () => {
               />
               <button
                 onClick={handleSubmit}
-                disabled={alerting}
-                className={`w-full py-3 px-4 font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-[#087C8A] transition-all flex items-center justify-center gap-2 ${
-                  alerting
-                    ? "bg-[#087C8A] cursor-not-allowed opacity-75"
-                    : "bg-[#0990A5] hover:bg-[#087C8A] text-white"
-                }`}
+                className="w-full py-3 bg-[#0990A5] text-white font-semibold rounded-lg hover:bg-[#087C8A] focus:outline-none focus:ring-2 focus:ring-[#087C8A]"
               >
-                {alerting ? (
-                  <>
-                    <svg
-                      className="animate-spin h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                      ></path>
-                    </svg>
-                    <span>Sending Alert...</span>
-                  </>
-                ) : (
-                  "Send Alert"
-                )}
+                Submit Alert
               </button>
             </div>
           </div>
         </div>
       )}
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        style={{ zIndex: 99999 }} // this ensures it's on top of modal
-      />
     </div>
   );
 };

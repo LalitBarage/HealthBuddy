@@ -9,6 +9,8 @@ import Request from "./Pages/Request";
 import Alert from "./Pages/Alert";
 import HospitalRequest from "./Pages/HospitalRequest";
 import axios from "axios";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const { isAuthenticated, setIsAuthenticated, user, setUser } =
@@ -36,29 +38,32 @@ function App() {
   }, [isAuthenticated, user, setIsAuthenticated, setUser]);
 
   return (
-    <Router>
-      {isAuthenticated && <Navbar />}
-      <Routes>
-        <Route path="/" element={isAuthenticated ? <Home /> : <Login />} />
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/hosprequest"
-          element={isAuthenticated ? <HospitalRequest /> : <Login />}
-        />
-        <Route
-          path="/request"
-          element={isAuthenticated ? <Request /> : <Login />}
-        />
-        <Route
-          path="/campaign"
-          element={isAuthenticated ? <Campaign /> : <Login />}
-        />
-        <Route
-          path="/alert"
-          element={isAuthenticated ? <Alert /> : <Login />}
-        />
-      </Routes>
-    </Router>
+    <>
+      <ToastContainer position="top-right" autoClose={3000} />
+      <Router>
+        {isAuthenticated && <Navbar />}
+        <Routes>
+          <Route path="/" element={isAuthenticated ? <Home /> : <Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/hosprequest"
+            element={isAuthenticated ? <HospitalRequest /> : <Login />}
+          />
+          <Route
+            path="/request"
+            element={isAuthenticated ? <Request /> : <Login />}
+          />
+          <Route
+            path="/campaign"
+            element={isAuthenticated ? <Campaign /> : <Login />}
+          />
+          <Route
+            path="/alert"
+            element={isAuthenticated ? <Alert /> : <Login />}
+          />
+        </Routes>
+      </Router>
+    </>
   );
 }
 

@@ -202,7 +202,6 @@ export const SchemeScreen = () => {
         setSelectedScheme("");
         setScid("");
         setPid("");
-        setHid("");
         setPincode("");
         setDocumentUrls({
           income: "",

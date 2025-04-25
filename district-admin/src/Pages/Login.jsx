@@ -4,8 +4,6 @@ import { Context } from "../main";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import { toast } from "react-toastify";
-
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,7 +16,10 @@ const Login = () => {
     try {
       const response = await axios.post(
         "http://localhost:3000/api/auth/loginSubDistAdmin",
-        { email, password },
+        {
+          email,
+          password,
+        },
         { withCredentials: true }
       );
 
@@ -27,20 +28,22 @@ const Login = () => {
       if (admin && token) {
         setUser(admin);
         setIsAuthenticated(true);
-        localStorage.setItem("token", token);
+        localStorage.setItem("token", token); // Save token to localStorage
+
+        // Save user and isAuthenticated to localStorage
         localStorage.setItem("user", JSON.stringify(admin));
         localStorage.setItem("isAuthenticated", "true");
 
-        toast.success("Login successful! Welcome back!");
-        navigate("/");
+        console.log("Login success:", admin);
+        navigate("/"); // Navigate to the home page after successful login
       } else {
-        throw new Error("Invalid login credentials");
+        alert(error.response?.data?.message || "Login failed");
       }
     } catch (error) {
       console.error("Login error:", error);
-      toast.error(
+      alert(
         error.response?.data?.message ||
-          "Login failed. Please check your credentials."
+          "Something went wrong. Please try again."
       );
     }
   };

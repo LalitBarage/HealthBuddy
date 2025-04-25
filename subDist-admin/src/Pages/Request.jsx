@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaEye } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const DocumentButtons = ({ documents, onView }) => {
   const docLabels = {
@@ -29,6 +30,9 @@ const Request = () => {
   const [requests, setRequests] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
   const [selectedDocUrl, setSelectedDocUrl] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   useEffect(() => {
     const fetchSchemes = async () => {
@@ -93,8 +97,10 @@ const Request = () => {
 
       if (!res.ok) throw new Error("Failed to update status");
       console.log("Status updated successfully");
+      toast.success("Status updated successfully!");
     } catch (error) {
       console.error("Error updating status:", error);
+      toast.error("Error updating status. Please try again.");
     }
   };
 
@@ -133,7 +139,9 @@ const Request = () => {
   return (
     <div className="p-6 bg-white min-h-screen text-black">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-[#0990a5]">Pending Requests</h2>
+        <h2 className="text-3xl font-bold text-[#0990a5]">
+          Pending Scheme Requests
+        </h2>
         <button
           className="bg-[#0ba9bb] text-white px-5 py-2 rounded-lg font-semibold hover:bg-[#0990a5] transition"
           onClick={() => setShowHistory((prev) => !prev)}
@@ -176,27 +184,86 @@ const Request = () => {
       {showHistory && (
         <>
           <h3 className="text-2xl font-bold text-[#0ba9bb] mt-12 mb-4">
-            Accepted requests
+            Accepted Requests
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {pastRequests.length > 0 ? (
-              pastRequests.map((h) => (
-                <div
-                  key={h.id}
-                  className="bg-[#7dc6ce] rounded-xl shadow-md px-5 py-4 hover:shadow-lg transition"
-                >
-                  <h4 className="text-xl font-semibold text-white">{h.name}</h4>
-                  <div className="mt-1">{getStatusBadge(h.status)}</div>
-                  <DocumentButtons
-                    documents={h.documents}
-                    onView={setSelectedDocUrl}
-                  />
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-600">No past requests found.</p>
-            )}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 my-4">
+            <input
+              type="text"
+              placeholder="Search by PID or SCID..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1); // reset to first page on search
+              }}
+              className="w-full md:w-1/2 p-2 border border-gray-300 rounded"
+            />
           </div>
+
+          {(() => {
+            const filteredAccepted = pastRequests.filter((r) =>
+              r.name.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            const totalAcceptedPages = Math.ceil(
+              filteredAccepted.length / itemsPerPage
+            );
+            const paginatedAccepted = filteredAccepted.slice(
+              (currentPage - 1) * itemsPerPage,
+              currentPage * itemsPerPage
+            );
+
+            return (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {paginatedAccepted.length > 0 ? (
+                    paginatedAccepted.map((h) => (
+                      <div
+                        key={h.id}
+                        className="bg-[#7dc6ce] rounded-xl shadow-md px-5 py-4 hover:shadow-lg transition"
+                      >
+                        <h4 className="text-xl font-semibold text-white">
+                          {h.name}
+                        </h4>
+                        <div className="mt-1">{getStatusBadge(h.status)}</div>
+                        <DocumentButtons
+                          documents={h.documents}
+                          onView={setSelectedDocUrl}
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-600">No accepted requests found.</p>
+                  )}
+                </div>
+
+                {/* Pagination Controls */}
+                <div className="flex justify-center items-center mt-8">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="px-3 py-1 bg-[#0990A5] text-white rounded disabled:opacity-50"
+                    >
+                      Prev
+                    </button>
+                    <span className="text-sm">
+                      Page {currentPage} of {totalAcceptedPages}
+                    </span>
+                    <button
+                      onClick={() =>
+                        setCurrentPage((p) =>
+                          Math.min(p + 1, totalAcceptedPages)
+                        )
+                      }
+                      disabled={currentPage === totalAcceptedPages}
+                      className="px-3 py-1 bg-[#0990A5] text-white rounded disabled:opacity-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              </>
+            );
+          })()}
         </>
       )}
 
