@@ -8,6 +8,7 @@ const {
   getDiseaseCount,
   deleteAlert,
   addScheme,
+  hideScheme,
 } = require("../controllers/adminController");
 const router = express.Router();
 
@@ -22,5 +23,6 @@ router.delete("/deleteAlert/:id", deleteAlert);
 router.get("/diseaseCount/:sub_dist", getDiseaseCount);
 
 router.post("/addScheme", addScheme);
+router.put("/hideScheme/:scid", hideScheme);
 
 module.exports = router;

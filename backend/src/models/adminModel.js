@@ -107,6 +107,19 @@ const addNewScheme = async (
   }
 };
 
+const hideById = async (scid, status) => {
+  try {
+    const result = await db.query(
+      `UPDATE schemes SET status = $1 WHERE scid = $2`,
+      [status, scid]
+    );
+    return result;
+  } catch (error) {
+    console.error("Error in hideById:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   findSchemeBySubDist,
   updateSchemeStatusById,
@@ -116,4 +129,5 @@ module.exports = {
   findDiseaseCountBySubDist,
   deleteAlertById,
   addNewScheme,
+  hideById,
 };

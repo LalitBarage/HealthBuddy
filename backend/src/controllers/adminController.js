@@ -9,6 +9,7 @@ const {
   findDiseaseCountBySubDist,
   addNewScheme,
   deleteAlertById,
+  hideById,
 } = require("../models/adminModel");
 
 const getSchemeBySubDist = async (req, res) => {
@@ -128,6 +129,7 @@ const deleteAlert = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
 const getDiseaseCount = async (req, res) => {
   const { sub_dist } = req.params;
   try {
@@ -197,6 +199,29 @@ const addScheme = async (req, res) => {
   }
 };
 
+const hideScheme = async (req, res) => {
+  const { scid } = req.params;
+  const { status } = req.body;
+
+  try {
+    if (!status) {
+      return res.status(400).json({ message: "Status is required" });
+    }
+
+    const result = await hideById(scid, status);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Scheme not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Scheme status updated successfully" });
+  } catch (error) {
+    console.error("Error updating scheme status:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   getSchemeBySubDist,
   updateSchemeStatus,
@@ -206,4 +231,5 @@ module.exports = {
   getDiseaseCount,
   deleteAlert,
   addScheme,
+  hideScheme,
 };
