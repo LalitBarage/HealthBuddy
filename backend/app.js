@@ -28,6 +28,7 @@ app.use("/api/admin", verifyToken, adminRoutes);
 
 const PORT = process.env.PORT || 5000;
 
+// server listening
 app.listen(PORT, () => {
   console.log(`Server running on ${PORT}`);
 });
