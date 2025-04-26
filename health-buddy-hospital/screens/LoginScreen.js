@@ -24,7 +24,7 @@ export const LoginScreen = ({ onLoginSuccess }) => {
 
     try {
       const response = await fetch(
-        "http://192.168.123.106:3000/api/auth/loginHospital",
+        "http://192.168.205.106:3000/api/auth/loginHospital",
         {
           method: "POST",
           headers: {
@@ -43,6 +43,7 @@ export const LoginScreen = ({ onLoginSuccess }) => {
         onLoginSuccess(data.token);
         await AsyncStorage.setItem("id", String(data.hospital?.hid));
         await AsyncStorage.setItem("pincode", String(data.hospital?.pincode));
+        await AsyncStorage.setItem("location", String(data.hospital?.sub_dist));
 
         console.log("Hospital ID:", data.hospital?.hid);
         navigation.navigate("Main");

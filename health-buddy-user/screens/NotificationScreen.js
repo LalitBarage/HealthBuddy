@@ -19,7 +19,7 @@ export const NotificationScreen = () => {
         console.log("Location:", location);
         const token = await AsyncStorage.getItem("userToken");
         const response = await fetch(
-          `http://192.168.123.106:3000/api/alert/getAlertNotification/${location}`,
+          `http://192.168.205.106:3000/api/alert/getAlertNotification/${location}`,
           {
             method: "GET",
             headers: {

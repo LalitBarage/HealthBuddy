@@ -23,7 +23,7 @@ export const LoginScreen = ({ onLoginSuccess }) => {
       console.log("Payload:", payload);
       // console.log(API_URL);
       const response = await fetch(
-        "http://192.168.123.106:3000/api/auth/loginUser",
+        "http://192.168.205.106:3000/api/auth/loginUser",
         {
           method: "POST",
           headers: {
@@ -43,6 +43,7 @@ export const LoginScreen = ({ onLoginSuccess }) => {
         await AsyncStorage.setItem("id", String(data.user?.pid));
         await AsyncStorage.setItem("adhar", String(data.user?.paddhar));
         await AsyncStorage.setItem("sub_dist", String(data.user?.sub_dist));
+        console.log(data.user?.sub_dist);
         console.log("User ID:", data.user?.pid);
         console.log("User Adhar:", data.user?.paddhar);
 

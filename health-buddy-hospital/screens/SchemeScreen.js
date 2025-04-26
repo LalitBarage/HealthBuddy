@@ -21,6 +21,7 @@ import {
 import * as DocumentPicker from "expo-document-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_URL, UPLOAD_PRESET } from "@env";
+import axios from "axios";
 
 const healthSchemes = [
   { id: "1", name: "Ayushman Bharat - Pradhan Mantri Jan Arogya Yojana" },
@@ -52,6 +53,7 @@ export const SchemeScreen = () => {
 
   const [filterMenuVisible, setFilterMenuVisible] = useState(false);
   const [filterAnchor, setFilterAnchor] = useState(null);
+  const [currentPid, setCurrentPid] = useState(null);
 
   const [documentUrls, setDocumentUrls] = useState({
     income: "",
@@ -114,7 +116,7 @@ export const SchemeScreen = () => {
         const token = await AsyncStorage.getItem("userToken");
 
         const response = await fetch(
-          `http://192.168.123.106:3000/api/scheme/getAppliedSchemeByHid/${id}`,
+          `http://192.168.205.106:3000/api/scheme/getAppliedSchemeByHid/${id}`,
           {
             method: "GET",
             headers: {
@@ -185,7 +187,7 @@ export const SchemeScreen = () => {
 
     try {
       const res = await fetch(
-        `http://192.168.123.106:3000/api/scheme/applyScheme`,
+        `http://192.168.205.106:3000/api/scheme/applyScheme`,
         {
           method: "POST",
           headers: {
@@ -221,65 +223,118 @@ export const SchemeScreen = () => {
     }
   };
 
-  const handleEdit = (item) => {
+  const handleEdit = async (item) => {
     setSelectedSchemeId(item);
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedOtp(otp);
-    console.log("Generated OTP:", otp);
+    setCurrentPid(item.pid);
+
+    console.log("Scheme ID:", item.pid);
+    const token = await AsyncStorage.getItem("userToken");
+    try {
+      await axios.get(`${API_URL}/api/enquiry/getOtp/${item.pid}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error) {
+      console.error("OTP fetch failed:", error);
+    }
     setOtpModalVisible(true);
   };
 
-  const handleDelete = (id) => {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedOtp(otp);
-    setDeletePendingId(id);
-    console.log("Generated OTP for delete:", otp);
+  const handleDelete = async (item) => {
+    setSelectedSchemeId(item);
+    console.log(item);
+    console.log(API_URL);
+    setCurrentPid(item.pid);
+
+    console.log("Enquiry ID:", item.pid);
+    const token = await AsyncStorage.getItem("userToken");
+    try {
+      await axios.get(`${API_URL}/api/enquiry/getOtp/${item.pid}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error) {
+      console.error("OTP fetch failed:", error);
+    }
     setOtpModalVisible(true);
+    console.log(item.apscid);
+    setDeletePendingId(item.apscid); // store id
   };
 
   const handleOtpSubmit = async () => {
-    if (enteredOtp === generatedOtp) {
-      setOtpModalVisible(false);
-      setEnteredOtp("");
+    console.log("Entered OTP:", enteredOtp);
 
-      if (deletePendingId) {
-        try {
-          const response = await fetch(
-            `http://192.168.123.106:3000/api/scheme/deleteAppliedScheme/${deletePendingId}`,
-            {
-              method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${await AsyncStorage.getItem(
-                  "userToken"
-                )}`,
-              },
-            }
-          );
-
-          if (response.ok) {
-            Alert.alert("Success", "Scheme deleted successfully!");
-            setDeletePendingId(null);
-          } else {
-            Alert.alert("Error", "Failed to delete scheme.");
-          }
-        } catch (error) {
-          console.error("Error deleting scheme:", error);
-          Alert.alert("Error", "Network or server issue.");
+    console.log("Enquiry ID:", currentPid);
+    try {
+      const result = await axios.post(
+        `http://192.168.205.106:3000/api/enquiry/checkOtp/${currentPid}/${enteredOtp}`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${await AsyncStorage.getItem("userToken")}`,
+          },
         }
-      }
+      );
+      console.log("OTP verification status:", result.status);
 
-      if (selectedSchemeId) {
-        setDocumentUrls({
-          income: selectedSchemeId.income_cert_url,
-          caste: selectedSchemeId.caste_cert_url,
-          electricity: selectedSchemeId.ele_bill_url,
-          bank: selectedSchemeId.bank_passbook_url,
-        });
-        setTimeout(() => setEditModalVisible(true), 100);
+      if (result.status === 200) {
+        setOtpModalVisible(false);
+        setEnteredOtp("");
+
+        if (deletePendingId) {
+          try {
+            const response = await fetch(
+              `http://192.168.205.106:3000/api/scheme/deleteAppliedScheme/${deletePendingId}`,
+              {
+                method: "DELETE",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${await AsyncStorage.getItem(
+                    "userToken"
+                  )}`,
+                },
+              }
+            );
+
+            if (response.ok) {
+              Alert.alert("Success", "Scheme deleted successfully!");
+              setDeletePendingId(null);
+            } else {
+              Alert.alert("Error", "Failed to delete scheme.");
+            }
+          } catch (error) {
+            console.error("Error deleting scheme:", error);
+            Alert.alert("Error", "Network or server issue.");
+          }
+        }
+
+        if (selectedSchemeId) {
+          setDocumentUrls({
+            income: selectedSchemeId.income_cert_url,
+            caste: selectedSchemeId.caste_cert_url,
+            electricity: selectedSchemeId.ele_bill_url,
+            bank: selectedSchemeId.bank_passbook_url,
+          });
+          setTimeout(() => setEditModalVisible(true), 100);
+        }
+      } else {
+        Alert.alert("Invalid OTP");
+        setEnteredOtp("");
       }
-    } else {
-      Alert.alert("Invalid OTP");
+    } catch (error) {
+      console.error(
+        "OTP verification error:",
+        error?.response?.data || error.message
+      );
+      Alert.alert(
+        "Error",
+        error?.response?.data?.message || "OTP check failed"
+      );
       setEnteredOtp("");
     }
   };
@@ -294,7 +349,7 @@ export const SchemeScreen = () => {
       };
       console.log(updateScheme);
       const response = await fetch(
-        `http://192.168.123.106:3000/api/scheme/updateAppliedScheme/${selectedSchemeId.apscid}`,
+        `http://192.168.205.106:3000/api/scheme/updateAppliedScheme/${selectedSchemeId.apscid}`,
         {
           method: "PUT",
           headers: {
@@ -607,7 +662,7 @@ export const SchemeScreen = () => {
                       textColor="#007aff"
                     />
                     <Button
-                      onPress={() => handleDelete(item.apscid)}
+                      onPress={() => handleDelete(item)}
                       compact
                       mode="text"
                       icon="delete"

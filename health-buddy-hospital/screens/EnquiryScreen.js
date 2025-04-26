@@ -24,6 +24,7 @@ import {
 
 import { API_URL } from "@env";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 const theme = {
   ...DefaultTheme,
@@ -67,6 +68,8 @@ export const EnquiryScreen = () => {
 
   const genderOptions = ["Male", "Female", "Other"];
 
+  const [currentPid, setCurrentPid] = useState(null);
+
   const validateAadhar = (value) => /^\d{12}$/.test(value);
 
   useEffect(() => {
@@ -85,7 +88,7 @@ export const EnquiryScreen = () => {
         const token = await AsyncStorage.getItem("userToken");
         console.log(API_URL);
         const response = await fetch(
-          `http://192.168.123.106:3000/api/enquiry/getAllEnquiries/${id}`,
+          `http://192.168.205.106:3000/api/enquiry/getAllEnquiries/${id}`,
           {
             method: "GET",
             headers: {
@@ -152,7 +155,7 @@ export const EnquiryScreen = () => {
     console.log("New Entry:", newEntry);
     try {
       const response = await fetch(
-        `http://192.168.123.106:3000/api/enquiry/addEnquiry`,
+        `http://192.168.205.106:3000/api/enquiry/addEnquiry`,
         {
           method: "POST",
           headers: {
@@ -214,72 +217,133 @@ export const EnquiryScreen = () => {
     currentPage * itemsPerPage
   );
 
-  const handleEdit = (enquiry) => {
+  // const handleEdit = async (enquiry) => {
+  //   setSelectedEnquiry(enquiry);
+  //   await axios.get(`${API_URL}/getOtp/${enquiry.pid}`);
+  //   // const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  //   // setGeneratedOtp(otp);
+  //   // console.log("Generated OTP:", otp);
+  //   setOtpModalVisible(true);
+  // };
+
+  const handleEdit = async (enquiry) => {
     setSelectedEnquiry(enquiry);
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedOtp(otp);
-    console.log("Generated OTP:", otp);
+    console.log(API_URL);
+    setCurrentPid(enquiry.pid);
+    console.log("Enquiry ID:", enquiry.pid);
+    const token = await AsyncStorage.getItem("userToken");
+    try {
+      await axios.get(`${API_URL}/api/enquiry/getOtp/${enquiry.pid}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error) {
+      console.error("OTP fetch failed:", error);
+    }
     setOtpModalVisible(true);
   };
 
   const handleOtpSubmit = async () => {
-    if (enteredOtp === generatedOtp) {
-      setOtpModalVisible(false);
-      setEnteredOtp("");
+    console.log("Entered OTP:", enteredOtp);
 
-      // Handle DELETE
-      if (deletePendingId) {
-        try {
-          const response = await fetch(
-            `http://192.168.123.106:3000/api/enquiry/deleteEnquiry/${deletePendingId}`,
-            {
-              method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${await AsyncStorage.getItem(
-                  "userToken"
-                )}`,
-              },
-            }
-          );
-
-          if (!response.ok) {
-            throw new Error("Failed to delete enquiry.");
-          }
-
-          setEnquiries((prev) => prev.filter((e) => e.id !== deletePendingId));
-          Alert.alert("Deleted", "Enquiry deleted successfully.");
-        } catch (err) {
-          Alert.alert("Error", err.message);
-        } finally {
-          setDeletePendingId(null); // clear after use
+    console.log("Enquiry ID:", currentPid);
+    try {
+      const result = await axios.post(
+        `http://192.168.205.106:3000/api/enquiry/checkOtp/${currentPid}/${enteredOtp}`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${await AsyncStorage.getItem("userToken")}`,
+          },
         }
-        return;
-      }
+      );
+      console.log("OTP verification status:", result.status);
 
-      // Handle EDIT
-      if (selectedEnquiry) {
-        setEnquiry({
-          pid: selectedEnquiry.pid?.toString() || "",
-          hid: selectedEnquiry.hid?.toString() || "",
-          diseases: selectedEnquiry.diseases || "",
-          pincode: selectedEnquiry.pincode || "",
-        });
+      if (result.status === 200) {
+        setOtpModalVisible(false);
+        setEnteredOtp("");
 
-        setTimeout(() => setEditModalVisible(true), 100);
+        // DELETE flow
+        if (deletePendingId) {
+          try {
+            const response = await fetch(
+              `http://192.168.205.106:3000/api/enquiry/deleteEnquiry/${deletePendingId}`,
+              {
+                method: "DELETE",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${await AsyncStorage.getItem(
+                    "userToken"
+                  )}`,
+                },
+              }
+            );
+
+            if (!response.ok) throw new Error("Failed to delete enquiry.");
+
+            setEnquiries((prev) =>
+              prev.filter((e) => e.id !== deletePendingId)
+            );
+            Alert.alert("Deleted", "Enquiry deleted successfully.");
+          } catch (err) {
+            Alert.alert("Error", err.message);
+          } finally {
+            setDeletePendingId(null);
+          }
+          return;
+        }
+
+        // EDIT flow
+        if (selectedEnquiry) {
+          setEnquiry({
+            pid: selectedEnquiry.pid?.toString() || "",
+            hid: selectedEnquiry.hid?.toString() || "",
+            diseases: selectedEnquiry.diseases || "",
+            pincode: selectedEnquiry.pincode || "",
+          });
+
+          setTimeout(() => setEditModalVisible(true), 100);
+        }
+      } else {
+        Alert.alert("Invalid OTP");
+        setEnteredOtp("");
       }
-    } else {
-      Alert.alert("Invalid OTP");
+    } catch (error) {
+      console.error(
+        "OTP verification error:",
+        error?.response?.data || error.message
+      );
+      Alert.alert(
+        "Error",
+        error?.response?.data?.message || "OTP check failed"
+      );
       setEnteredOtp("");
     }
   };
 
-  const handleDelete = (id) => {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedOtp(otp);
-    setDeletePendingId(id); // store id
-    console.log("Generated OTP for delete:", otp);
+  const handleDelete = async (enquiry) => {
+    setSelectedEnquiry(enquiry);
+
+    console.log(API_URL);
+    setCurrentPid(enquiry.pid);
+
+    console.log("Enquiry ID:", enquiry.pid);
+    const token = await AsyncStorage.getItem("userToken");
+    try {
+      await axios.get(`${API_URL}/api/enquiry/getOtp/${enquiry.pid}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error) {
+      console.error("OTP fetch failed:", error);
+    }
     setOtpModalVisible(true);
+    setDeletePendingId(enquiry.id); // store id
   };
 
   const handleEditSubmit = async () => {
@@ -292,7 +356,7 @@ export const EnquiryScreen = () => {
       };
 
       const response = await fetch(
-        `http://192.168.123.106:3000/api/enquiry/updateEnquiry/${selectedEnquiry.id}`,
+        `http://192.168.205.106:3000/api/enquiry/updateEnquiry/${selectedEnquiry.id}`,
         {
           method: "PUT",
           headers: {
@@ -501,7 +565,7 @@ export const EnquiryScreen = () => {
                       textColor="#007aff"
                     />
                     <Button
-                      onPress={() => handleDelete(item.id)}
+                      onPress={() => handleDelete(item)}
                       compact
                       mode="text"
                       icon="delete"

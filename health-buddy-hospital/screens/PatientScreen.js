@@ -80,7 +80,7 @@ export const PatientScreen = () => {
       console.log(API_URL);
 
       const response = await axios.post(
-        `http://192.168.123.106:3000/api/auth/registerUser`,
+        `http://192.168.205.106:3000/api/auth/registerUser`,
         payload
       );
 

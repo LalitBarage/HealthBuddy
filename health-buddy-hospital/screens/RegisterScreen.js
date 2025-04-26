@@ -98,7 +98,7 @@ export const RegisterScreen = ({ navigation }) => {
 
     try {
       const response = await fetch(
-        `http://192.168.123.106:3000/api/auth/registerHospital`,
+        `http://192.168.205.106:3000/api/auth/registerHospital`,
         {
           method: "POST",
           headers: {
