@@ -199,6 +199,7 @@ const getOtp = async (req, res) => {
 
     const OTP = Math.floor(100000 + Math.random() * 900000);
     const smsText = `Your OTP is ${OTP}. Please do not share it with anyone.`;
+    console.log("OTP:", OTP);
 
     await client.messages.create({
       body: smsText,
