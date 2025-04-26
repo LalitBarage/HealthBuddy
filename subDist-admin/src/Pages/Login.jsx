@@ -17,7 +17,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/auth/loginSubDistAdmin",
+        "https://healthbuddy-ozon.onrender.com/api/auth/loginSubDistAdmin",
         { email, password },
         { withCredentials: true }
       );

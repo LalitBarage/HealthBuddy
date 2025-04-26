@@ -116,7 +116,7 @@ export const SchemeScreen = () => {
         const token = await AsyncStorage.getItem("userToken");
 
         const response = await fetch(
-          `http://192.168.205.106:3000/api/scheme/getAppliedSchemeByHid/${id}`,
+          `${API_URL}/api/scheme/getAppliedSchemeByHid/${id}`,
           {
             method: "GET",
             headers: {
@@ -186,17 +186,14 @@ export const SchemeScreen = () => {
     };
 
     try {
-      const res = await fetch(
-        `http://192.168.205.106:3000/api/scheme/applyScheme`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${await AsyncStorage.getItem("userToken")}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const res = await fetch(`${API_URL}/api/scheme/applyScheme`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${await AsyncStorage.getItem("userToken")}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
       const data = await res.json();
 
@@ -204,6 +201,7 @@ export const SchemeScreen = () => {
 
       if (res.ok) {
         Alert.alert("Success", "Scheme applied successfully!");
+        setAppliedSchemes([payload, ...appliedSchemes]);
         setSelectedScheme("");
         setScid("");
         setPid("");
@@ -243,7 +241,6 @@ export const SchemeScreen = () => {
   };
 
   const handleDelete = async (item) => {
-    setSelectedSchemeId(item);
     console.log(item);
     console.log(API_URL);
     setCurrentPid(item.pid);
@@ -271,7 +268,7 @@ export const SchemeScreen = () => {
     console.log("Enquiry ID:", currentPid);
     try {
       const result = await axios.post(
-        `http://192.168.205.106:3000/api/enquiry/checkOtp/${currentPid}/${enteredOtp}`,
+        `${API_URL}/api/enquiry/checkOtp/${currentPid}/${enteredOtp}`,
         {},
         {
           headers: {
@@ -289,7 +286,7 @@ export const SchemeScreen = () => {
         if (deletePendingId) {
           try {
             const response = await fetch(
-              `http://192.168.205.106:3000/api/scheme/deleteAppliedScheme/${deletePendingId}`,
+              `${API_URL}/api/scheme/deleteAppliedScheme/${deletePendingId}`,
               {
                 method: "DELETE",
                 headers: {
@@ -349,7 +346,7 @@ export const SchemeScreen = () => {
       };
       console.log(updateScheme);
       const response = await fetch(
-        `http://192.168.205.106:3000/api/scheme/updateAppliedScheme/${selectedSchemeId.apscid}`,
+        `${API_URL}/api/scheme/updateAppliedScheme/${selectedSchemeId.apscid}`,
         {
           method: "PUT",
           headers: {

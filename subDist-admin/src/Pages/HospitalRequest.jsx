@@ -28,7 +28,6 @@ const DocumentButtons = ({ documents, onView }) => {
 
 const HospitalRequest = () => {
   const [requests, setRequests] = useState([]);
-  const [showHistory, setShowHistory] = useState(false);
   const [selectedDocUrl, setSelectedDocUrl] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -41,7 +40,7 @@ const HospitalRequest = () => {
         const subdist = user.sub_dist;
 
         const res = await fetch(
-          `http://localhost:3000/api/admin/getHospitalRequests/${subdist}`,
+          `https://healthbuddy-ozon.onrender.com/api/admin/getHospitalRequests/${subdist}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -64,6 +63,7 @@ const HospitalRequest = () => {
             name: `Hospital Name-${item.hname}`,
             status: mappedStatus,
             hid: item.hid,
+            pincode: item.pincode,
             documents: {
               hospitalcertificate: item.document_url,
             },
@@ -82,7 +82,7 @@ const HospitalRequest = () => {
   const updateStatusInBackend = async (hid, status) => {
     try {
       const res = await fetch(
-        `http://localhost:3000/api/admin/updateHospitalStatus/${hid}`,
+        `https://healthbuddy-ozon.onrender.com/api/admin/updateHospitalStatus/${hid}`,
         {
           method: "PUT",
           headers: {
@@ -123,29 +123,34 @@ const HospitalRequest = () => {
     );
   };
 
-  const pendingRequests = requests.filter((r) => r.status === "Pending");
-  const acceptedRequests = requests.filter((r) => r.status !== "Pending");
+  const pendingOrRejected = requests.filter(
+    (r) => r.status === "Pending" || r.status === "Rejected"
+  );
+  const acceptedRequests = requests.filter((r) => r.status === "Accepted");
+
+  const filteredAccepted = acceptedRequests.filter((r) =>
+    r.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const totalAcceptedPages = Math.ceil(filteredAccepted.length / itemsPerPage);
+  const paginatedAccepted = filteredAccepted.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <div className="px-10 py-4 bg-white min-h-screen text-black">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-[#0990a5]">
-          Pending Hospitals Requests
-        </h2>
-        <button
-          className="bg-[#0ba9bb] text-white px-5 py-2 rounded-lg font-semibold hover:bg-[#0990a5] transition"
-          onClick={() => setShowHistory((prev) => !prev)}
-        >
-          {showHistory ? "Hide History" : "Past History"}
-        </button>
-      </div>
+      <h2 className="text-3xl font-bold text-[#0990a5] mb-6">
+        Pending & Rejected Hospital Requests
+      </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {pendingRequests.length > 0 ? (
-          pendingRequests.map((req) => (
+        {pendingOrRejected.length > 0 ? (
+          pendingOrRejected.map((req) => (
             <div
               key={req.hid}
-              className="bg-[#0ba9bb] rounded-xl shadow-md px-5 py-4 hover:shadow-lg transition"
+              className={`${
+                req.status === "Rejected" ? "bg-red-400" : "bg-[#0ba9bb]"
+              } rounded-xl shadow-md px-5 py-4 hover:shadow-lg transition`}
             >
               <h4 className="text-xl font-semibold text-white">{req.name}</h4>
               <div className="flex items-center space-x-3 mt-2">
@@ -167,85 +172,70 @@ const HospitalRequest = () => {
             </div>
           ))
         ) : (
-          <p className="text-gray-600">No pending requests found.</p>
+          <p className="text-gray-600">
+            No pending or rejected requests found.
+          </p>
         )}
       </div>
 
-      {showHistory && (
-        <>
-          <h3 className="text-2xl font-bold text-[#0ba9bb] mt-12 mb-4">
-            Past Requests
-          </h3>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 my-4">
-            <input
-              type="text"
-              placeholder="Search by name..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="w-full md:w-1/2 p-2 border border-gray-300 rounded"
-            />
-          </div>
+      <h3 className="text-2xl font-bold text-[#0ba9bb] mt-12 mb-4">
+        Accepted Requests by Pincode
+      </h3>
 
-          {(() => {
-            const filteredAccepted = acceptedRequests.filter((r) =>
-              r.name.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-            const totalAcceptedPages = Math.ceil(
-              filteredAccepted.length / itemsPerPage
-            );
-            const paginatedAccepted = filteredAccepted.slice(
-              (currentPage - 1) * itemsPerPage,
-              currentPage * itemsPerPage
-            );
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 my-4">
+        <input
+          type="text"
+          placeholder="Search by name..."
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="w-full md:w-1/2 p-2 border border-gray-300 rounded"
+        />
+      </div>
 
-            return (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {paginatedAccepted.length > 0 ? (
-                    paginatedAccepted.map((h) => (
-                      <div
-                        key={h.hid}
-                        className="bg-[#7dc6ce] rounded-xl shadow-md px-5 py-4 hover:shadow-lg transition"
-                      >
-                        <h4 className="text-xl font-semibold text-white">
-                          {h.name}
-                        </h4>
-                        <div className="mt-1">{getStatusBadge(h.status)}</div>
-                        <DocumentButtons
-                          documents={h.documents}
-                          onView={setSelectedDocUrl}
-                        />
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-gray-600">No past requests found.</p>
-                  )}
-                </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {paginatedAccepted.length > 0 ? (
+          paginatedAccepted.map((h) => (
+            <div
+              key={h.hid}
+              className="bg-[#7dc6ce] rounded-xl shadow-md px-5 py-4 hover:shadow-lg transition"
+            >
+              <h4 className="text-xl font-semibold text-white">{h.name}</h4>
+              <div className="mt-1 flex justify-between items-center">
+                {getStatusBadge(h.status)}
+                <span className="text-white text-sm font-medium">
+                  Pincode: {h.pincode}
+                </span>
+              </div>
+              <DocumentButtons
+                documents={h.documents}
+                onView={setSelectedDocUrl}
+              />
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-600">No accepted requests found.</p>
+        )}
+      </div>
 
-                {totalAcceptedPages > 1 && (
-                  <div className="flex justify-center gap-2 mt-4">
-                    {Array.from({ length: totalAcceptedPages }, (_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setCurrentPage(i + 1)}
-                        className={`px-3 py-1 rounded ${
-                          currentPage === i + 1
-                            ? "bg-[#0ba9bb] text-white"
-                            : "bg-gray-200"
-                        }`}
-                      >
-                        {i + 1}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </>
-            );
-          })()}
-        </>
+      {totalAcceptedPages > 1 && (
+        <div className="flex justify-center gap-2 mt-4">
+          {Array.from({ length: totalAcceptedPages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-3 py-1 rounded ${
+                currentPage === i + 1
+                  ? "bg-[#0ba9bb] text-white"
+                  : "bg-gray-200"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
       )}
 
       {selectedDocUrl && (

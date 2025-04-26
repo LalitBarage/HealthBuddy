@@ -34,7 +34,7 @@ const Scheme = () => {
       const user = JSON.parse(localStorage.getItem("user"));
       const location = user.sub_dist;
       const response = await axios.get(
-        `http://localhost:3000/api/scheme/getSchemes/${location}`,
+        `https://healthbuddy-ozon.onrender.com/api/scheme/getSchemes/${location}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -72,7 +72,7 @@ const Scheme = () => {
 
     try {
       await axios.put(
-        `http://localhost:3000/api/admin/hideScheme/${selectedScheme.scid}`,
+        `https://healthbuddy-ozon.onrender.com/api/admin/hideScheme/${selectedScheme.scid}`,
         { status: newStatus },
         {
           headers: {
@@ -96,11 +96,15 @@ const Scheme = () => {
     console.log(formData);
 
     try {
-      await axios.post(`http://localhost:3000/api/admin/addScheme`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.post(
+        `https://healthbuddy-ozon.onrender.com/api/admin/addScheme`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       fetchSchemes();
       toast.success("Scheme added successfully!");
@@ -124,7 +128,7 @@ const Scheme = () => {
       // Show confirmation before deletion
       if (window.confirm("Are you sure you want to delete this Scheme?")) {
         await axios.delete(
-          `http://localhost:3000/api/admin/deleteScheme/${schemeId}`,
+          `https://healthbuddy-ozon.onrender.com/api/admin/deleteScheme/${schemeId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

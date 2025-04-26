@@ -21,7 +21,7 @@ const Alert = () => {
       const location = user.sub_dist;
 
       const response = await fetch(
-        `http://localhost:3000/api/alert/getAlerts/${location}`,
+        `https://healthbuddy-ozon.onrender.com/api/alert/getAlerts/${location}`,
         {
           method: "GET",
           headers: {
@@ -61,14 +61,17 @@ const Alert = () => {
 
     try {
       setAlerting(true);
-      const res = await fetch("http://localhost:3000/api/admin/addAlert", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ message, severity, location: sub_dist }),
-      });
+      const res = await fetch(
+        "https://healthbuddy-ozon.onrender.com/api/admin/addAlert",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ message, severity, location: sub_dist }),
+        }
+      );
 
       if (!res.ok) {
         const errorData = await res.json();
@@ -109,7 +112,7 @@ const Alert = () => {
       // Show confirmation before deletion
       if (window.confirm("Are you sure you want to delete this Alert?")) {
         await axios.delete(
-          `http://localhost:3000/api/admin/deleteAlert/${alertId}`,
+          `https://healthbuddy-ozon.onrender.com/api/admin/deleteAlert/${alertId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

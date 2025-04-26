@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_URL } from "@env";
+import axios from "axios";
 
 const ProfileScreen = () => {
   const [profile, setProfile] = useState(null);
@@ -26,16 +27,12 @@ const ProfileScreen = () => {
       const id = await AsyncStorage.getItem("id");
       const token = await AsyncStorage.getItem("userToken");
       const adhar = await AsyncStorage.getItem("adhar");
-      console.log(adhar);
 
-      const res = await fetch(
-        `http://192.168.205.106:3000/api/auth/userProfile/${adhar}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await fetch(`${API_URL}/api/auth/userProfile/${adhar}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await res.json();
       setProfile(data);
     };
@@ -43,16 +40,54 @@ const ProfileScreen = () => {
     fetchProfile();
   }, []);
 
-  const generateOtp = () => {
-    const generated = Math.floor(100000 + Math.random() * 900000).toString();
-    setServerOtp(generated);
-    console.log("OTP:", generated); // In real scenario, send to user
-    setOtp("");
+  // const generateOtp = () => {
+  //   const generated = Math.floor(100000 + Math.random() * 900000).toString();
+  //   setServerOtp(generated);
+  //   console.log("OTP:", generated); // In real scenario, send to user
+  //   setOtp("");
+  //   setOtpModalVisible(true);
+  // };
+  const generateOtp = async () => {
+    const id = await AsyncStorage.getItem("id");
+    const token = await AsyncStorage.getItem("userToken");
+    await axios.get(`$${API_URL}/api/enquiry/getOtp/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
     setOtpModalVisible(true);
   };
 
-  const handleOtpSubmit = () => {
-    if (otp === serverOtp) {
+  // const handleOtpSubmit = () => {
+  //   if (otp === serverOtp) {
+  //     setOtpModalVisible(false);
+  //     if (otpTarget === "edit") {
+  //       setEditModalVisible(true);
+  //     } else {
+  //       setPasswordModalVisible(true);
+  //     }
+  //   } else {
+  //     Alert.alert("Invalid OTP");
+  //     setPasswordModalVisible(false);
+  //   }
+  // };
+
+  const handleOtpSubmit = async () => {
+    const id = await AsyncStorage.getItem("id");
+    const token = await AsyncStorage.getItem("userToken");
+    const result = await axios.post(
+      `$${API_URL}/api/enquiry/checkOtp/${id}/${otp}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (result.status === 200) {
       setOtpModalVisible(false);
       if (otpTarget === "edit") {
         setEditModalVisible(true);
@@ -75,7 +110,7 @@ const ProfileScreen = () => {
       const token = await AsyncStorage.getItem("userToken");
       console.log(adhar);
       const response = await fetch(
-        `http://192.168.205.106:3000/api/auth/changePassword/${adhar}`,
+        `${API_URL}/api/auth/changePassword/${adhar}`,
         {
           method: "PUT",
           headers: {
@@ -87,7 +122,6 @@ const ProfileScreen = () => {
       );
 
       const data = await response.json();
-      console.log(data);
 
       if (response.ok) {
         Alert.alert(

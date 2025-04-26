@@ -20,7 +20,7 @@ const Navbar = () => {
     setUser(null); // Use `null` instead of `{}` for clarity
 
     // Optionally, if you're using cookies or sessions, call the backend to log out
-    // axios.get("http://localhost:3000/api/auth/logout", { withCredentials: true });
+    // axios.get("https://healthbuddy-ozon.onrender.com/api/auth/logout", { withCredentials: true });
 
     // Navigate to login page
     navigate("/login");

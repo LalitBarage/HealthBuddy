@@ -22,21 +22,33 @@ function App() {
     if (isAuthenticated && user?.id) {
       const fetchUser = async () => {
         try {
+          const token = localStorage.getItem("token");
+
+          if (!token) {
+            throw new Error("No token found in localStorage");
+          }
+
           const response = await axios.get(
-            `http://localhost:3000/api/auth/profileSubDistAdmin/${user.id}`,
-            { withCredentials: true }
+            `https://healthbuddy-ozon.onrender.com/api/auth/profileSubDistAdmin/${user.id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
           );
+
           setUser(response.data);
         } catch (error) {
           console.error("Error fetching user data:", error);
           setIsAuthenticated(false);
           setUser(null);
+          localStorage.removeItem("token"); // optional: clean up invalid token
         }
       };
 
       fetchUser();
     }
-  }, [isAuthenticated, user, setIsAuthenticated, setUser]);
+  }, [isAuthenticated, user?.id, setIsAuthenticated, setUser]);
 
   return (
     <>

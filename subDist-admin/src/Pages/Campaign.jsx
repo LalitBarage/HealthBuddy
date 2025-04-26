@@ -37,7 +37,7 @@ const Campaign = () => {
       const user = JSON.parse(localStorage.getItem("user"));
       const location = user.sub_dist;
       const response = await axios.get(
-        `http://localhost:3000/api/alert/getCampaigns/${location}`,
+        `https://healthbuddy-ozon.onrender.com/api/alert/getCampaigns/${location}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -107,7 +107,7 @@ const Campaign = () => {
       const user = JSON.parse(localStorage.getItem("user"));
       const location = user.sub_dist;
       await axios.post(
-        `http://localhost:3000/api/alert/addCampaign/${location}`,
+        `https://healthbuddy-ozon.onrender.com/api/alert/addCampaign/${location}`,
         payload,
         {
           headers: {
@@ -144,7 +144,7 @@ const Campaign = () => {
       // Show confirmation before deletion
       if (window.confirm("Are you sure you want to delete this campaign?")) {
         await axios.delete(
-          `http://localhost:3000/api/alert/deleteCampaign/${campaignId}`,
+          `https://healthbuddy-ozon.onrender.com/api/alert/deleteCampaign/${campaignId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

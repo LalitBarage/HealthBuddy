@@ -8,22 +8,20 @@ import {
   ActivityIndicator,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_URL } from "@env"; // Ensure you have this in your .env file
 
 // Fetching the banner data from the API
 const fetchBanner = async () => {
   try {
     const location = await AsyncStorage.getItem("location");
     const token = await AsyncStorage.getItem("userToken");
-    const response = await fetch(
-      `http://192.168.205.106:3000/api/alert/getBanner/${location}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await fetch(`${API_URL}/api/alert/getBanner/${location}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
     const data = await response.json();
     if (data.alerts && Array.isArray(data.alerts)) {
       return data.alerts.map((alert) => alert.image_url);
@@ -44,7 +42,7 @@ const fetchHealthSchemes = async () => {
   console.log(location);
   try {
     const response = await fetch(
-      `http://192.168.205.106:3000/api/scheme/getSchemes/${location}`,
+      `${API_URL}/api/scheme/getSchemes/${location}`,
       {
         method: "GET",
         headers: {

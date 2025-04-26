@@ -40,7 +40,7 @@ const Home = () => {
       try {
         const location = user.sub_dist;
         const res = await fetch(
-          `http://localhost:3000/api/admin/diseaseCount/${location}`,
+          `https://healthbuddy-ozon.onrender.com/api/admin/diseaseCount/${location}`,
           {
             headers: {
               "Content-Type": "application/json",

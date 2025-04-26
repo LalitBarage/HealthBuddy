@@ -88,7 +88,7 @@ export const EnquiryScreen = () => {
         const token = await AsyncStorage.getItem("userToken");
         console.log(API_URL);
         const response = await fetch(
-          `http://192.168.205.106:3000/api/enquiry/getAllEnquiries/${id}`,
+          `${API_URL}/api/enquiry/getAllEnquiries/${id}`,
           {
             method: "GET",
             headers: {
@@ -154,17 +154,14 @@ export const EnquiryScreen = () => {
 
     console.log("New Entry:", newEntry);
     try {
-      const response = await fetch(
-        `http://192.168.205.106:3000/api/enquiry/addEnquiry`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(newEntry),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/enquiry/addEnquiry`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newEntry),
+      });
       console.log("Response:", response);
 
       if (!response.ok) {
@@ -219,7 +216,7 @@ export const EnquiryScreen = () => {
 
   // const handleEdit = async (enquiry) => {
   //   setSelectedEnquiry(enquiry);
-  //   await axios.get(`${API_URL}/getOtp/${enquiry.pid}`);
+  //   await axios.get(`$${API_URL}/getOtp/${enquiry.pid}`);
   //   // const otp = Math.floor(100000 + Math.random() * 900000).toString();
   //   // setGeneratedOtp(otp);
   //   // console.log("Generated OTP:", otp);
@@ -251,7 +248,7 @@ export const EnquiryScreen = () => {
     console.log("Enquiry ID:", currentPid);
     try {
       const result = await axios.post(
-        `http://192.168.205.106:3000/api/enquiry/checkOtp/${currentPid}/${enteredOtp}`,
+        `${API_URL}/api/enquiry/checkOtp/${currentPid}/${enteredOtp}`,
         {},
         {
           headers: {
@@ -270,7 +267,7 @@ export const EnquiryScreen = () => {
         if (deletePendingId) {
           try {
             const response = await fetch(
-              `http://192.168.205.106:3000/api/enquiry/deleteEnquiry/${deletePendingId}`,
+              `${API_URL}/api/enquiry/deleteEnquiry/${deletePendingId}`,
               {
                 method: "DELETE",
                 headers: {
@@ -332,6 +329,7 @@ export const EnquiryScreen = () => {
 
     console.log("Enquiry ID:", enquiry.pid);
     const token = await AsyncStorage.getItem("userToken");
+    console.log("Token:", token);
     try {
       await axios.get(`${API_URL}/api/enquiry/getOtp/${enquiry.pid}`, {
         headers: {
@@ -354,9 +352,10 @@ export const EnquiryScreen = () => {
         diseases: enquiry.diseases,
         pincode: enquiry.pincode,
       };
+      console.log(selectedEnquiry);
 
       const response = await fetch(
-        `http://192.168.205.106:3000/api/enquiry/updateEnquiry/${selectedEnquiry.id}`,
+        `${API_URL}/api/enquiry/updateEnquiry/${selectedEnquiry.id}`,
         {
           method: "PUT",
           headers: {

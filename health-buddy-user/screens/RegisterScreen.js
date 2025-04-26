@@ -70,7 +70,7 @@ export const RegisterScreen = () => {
       };
 
       const response = await axios.post(
-        `http://192.168.205.106:3000/api/auth/registerUser`,
+        `${API_URL}/api/auth/registerUser`,
         payload
       );
 

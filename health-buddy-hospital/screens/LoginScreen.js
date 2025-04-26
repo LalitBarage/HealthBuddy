@@ -4,7 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { TextInput } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-// import { API_URL } from "@env"; // Make sure this is defined in your .env file
+import { API_URL } from "@env"; // Make sure this is defined in your .env file
 // Import the context
 
 export const LoginScreen = ({ onLoginSuccess }) => {
@@ -23,16 +23,13 @@ export const LoginScreen = ({ onLoginSuccess }) => {
     console.log("Payload:", payload);
 
     try {
-      const response = await fetch(
-        "http://192.168.205.106:3000/api/auth/loginHospital",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/auth/loginHospital`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
       const data = await response.json();
       console.log("Login response:", data);

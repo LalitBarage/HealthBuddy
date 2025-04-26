@@ -41,7 +41,7 @@ const Request = () => {
         const subdist = user.sub_dist;
         console.log("Sub Dist:", subdist);
         const res = await fetch(
-          `http://localhost:3000/api/admin/getSchemeBySubDist/${subdist}`,
+          `https://healthbuddy-ozon.onrender.com/api/admin/getSchemeBySubDist/${subdist}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -84,7 +84,7 @@ const Request = () => {
   const updateStatusInBackend = async (id, status) => {
     try {
       const res = await fetch(
-        `http://localhost:3000/api/admin/updateSchemeStatus/${id}`,
+        `https://healthbuddy-ozon.onrender.com/api/admin/updateSchemeStatus/${id}`,
         {
           method: "PUT",
           headers: {

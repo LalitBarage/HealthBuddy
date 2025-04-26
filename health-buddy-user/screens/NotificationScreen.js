@@ -7,6 +7,7 @@ import {
   StyleSheet,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Make sure this is imported
+import { API_URL } from "@env"; // Ensure you have this in your .env file
 
 export const NotificationScreen = () => {
   const [expandedId, setExpandedId] = useState(null);
@@ -19,7 +20,7 @@ export const NotificationScreen = () => {
         console.log("Location:", location);
         const token = await AsyncStorage.getItem("userToken");
         const response = await fetch(
-          `http://192.168.205.106:3000/api/alert/getAlertNotification/${location}`,
+          `${API_URL}/api/alert/getAlertNotification/${location}`,
           {
             method: "GET",
             headers: {

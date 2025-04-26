@@ -97,16 +97,13 @@ export const RegisterScreen = ({ navigation }) => {
     };
 
     try {
-      const response = await fetch(
-        `http://192.168.205.106:3000/api/auth/registerHospital`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/auth/registerHospital`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
       const result = await response.json();
 

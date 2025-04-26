@@ -25,7 +25,7 @@ export const InfoScreen = () => {
         const token = await AsyncStorage.getItem("userToken");
 
         const response = await fetch(
-          `http://192.168.205.106:3000/api/enquiry/getEnquiryByPid/${id}`,
+          `${API_URL}/api/enquiry/getEnquiryByPid/${id}`,
           {
             method: "GET",
             headers: {
